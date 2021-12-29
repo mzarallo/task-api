@@ -18,8 +18,8 @@ class TaskFactory extends Factory
     public function definition(): array
     {
         return [
-            'title' => $this->faker->title,
-            'description' => $this->faker->text(),
+            'title' => $this->faker->realText(20),
+            'description' => $this->faker->realText(350),
             'author_id' => User::all()->random()->id,
             'stage_id' => Stage::all()->random()->id,
             'tags' => \json_encode(['UI', 'DEV', 'QA']),
