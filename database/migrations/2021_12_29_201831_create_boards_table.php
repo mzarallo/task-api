@@ -16,8 +16,8 @@ class CreateBoardsTable extends Migration
         Schema::create('boards', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable(false);
-            $table->unsignedBigInteger('author_id')->nullable(false);
             $table->string('hex_color')->nullable(false);
+            $table->unsignedBigInteger('author_id')->nullable(false);
             $table->foreign('author_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
