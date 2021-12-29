@@ -23,6 +23,7 @@ class StageFactory extends Factory
         return [
             'name' => $name,
             'slug' => Str::slug($name),
+            'hex_color' => $this->faker->hexColor(),
             'order' => $this->faker->numberBetween(0, 100),
             'is_final_stage' => $this->faker->boolean,
             'board_id' => Board::all()->random()->id,
