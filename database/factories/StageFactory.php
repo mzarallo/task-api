@@ -18,7 +18,7 @@ class StageFactory extends Factory
      */
     public function definition(): array
     {
-        $name = $this->faker->name();
+        $name = $this->faker->randomElement(['Pending', 'In progress', 'Finished']);
 
         return [
             'name' => $name,

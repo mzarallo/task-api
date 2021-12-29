@@ -15,7 +15,7 @@ class BoardFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->title(),
+            'name' => $this->faker->company(),
             'hex_color' => $this->faker->hexColor(),
             'author_id' => $this->getRandomUserId()
         ];
