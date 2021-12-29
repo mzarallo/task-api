@@ -14,8 +14,14 @@ class UserFactory extends Factory
      */
     public function definition()
     {
+        $name = $this->faker->name();
+        $lastName = $this->faker->lastName();
+        $abbreviation = Str::upper(Str::substr($name,0, 1).Str::substr($lastName,0,1));
+
         return [
-            'name' => $this->faker->name(),
+            'name' => $name,
+            'last_name' => $lastName,
+            'abbreviation' => $abbreviation,
             'email' => $this->faker->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
