@@ -3,9 +3,14 @@ name: CI
 on:
   push:
     branches: [ main ]
+    paths:
+    - 'app/**'
+    - 'tests/**'
   pull_request:
     branches: [ main ]
-
+    paths:
+    - 'app/**'
+    - 'tests/**'
 jobs:
   laravel-ci:
     name: Laravel PHP 8.0
