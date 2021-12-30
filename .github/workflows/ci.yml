@@ -1,13 +1,15 @@
-name: CI InstantSchool
+name: CI Task App
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
     paths:
       - 'app/**'
       - 'tests/**'
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
     paths:
       - 'app/**'
       - 'tests/**'
