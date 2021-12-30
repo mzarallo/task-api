@@ -2,17 +2,9 @@ name: CI Task App
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - 'app/**'
-      - 'tests/**'
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
-    paths:
-      - 'app/**'
-      - 'tests/**'
+    branches: [ main ]
 
 jobs:
   laravel:
