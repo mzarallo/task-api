@@ -1,4 +1,6 @@
-<p align="center">![example workflow](https://github.com/zockfoul/task-app-api/actions/workflows/ci.yml/badge.svg)</p>
+<p align="center">
+<a href="https://github.com/zockfoul/task-app-api/actions/workflows/ci.yml"><img src="https://github.com/zockfoul/task-app-api/actions/workflows/ci.yml/badge.svg" alt="Build Status"></img></a>
+</p>
 
 
 ## Acerca de Task App
