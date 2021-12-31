@@ -23,5 +23,9 @@ class DatabaseSeeder extends Seeder
         Stage::factory(15)->create();
         Task::factory(100)->create();
         Comment::factory(300)->create();
+
+        $this->call([
+            PermissionSeeder::class
+        ]);
     }
 }
