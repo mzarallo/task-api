@@ -10,10 +10,7 @@ use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
 {
-    /**
-     * @test
-     */
-    public function user_can_obtain_jwt_token_with_correct_credentials(): void
+    public function test_user_can_obtain_jwt_token_with_correct_credentials(): void
     {
         $this->withoutExceptionHandling();
 
@@ -34,10 +31,7 @@ class AuthenticationTest extends TestCase
         )->assertStatus(200);
     }
 
-    /**
-     * @test
-     */
-    public function user_cant_obtain_jwt_token_with_incorrect_credentials(): void
+    public function test_user_cannot_get_jwt_token_with_incorrect_credentials(): void
     {
         $this->withoutExceptionHandling();
 
