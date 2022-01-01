@@ -10,7 +10,10 @@ use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
 {
-    public function test_user_can_obtain_jwt_token_with_correct_credentials(): void
+    /**
+     * @test
+     */
+    public function user_can_obtain_jwt_token_with_correct_credentials(): void
     {
         $this->withoutExceptionHandling();
 
@@ -20,18 +23,21 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response->assertJson(fn (AssertableJson $json) => $json
-                ->hasAll('token_type', 'access_token', 'expires_in')
-                ->where('token_type', 'bearer')
-                ->whereAllType([
-                    'token_type' => 'string',
-                    'expires_in' => 'integer',
-                    'access_token' => 'string',
-                ])
-                ->etc()
+            ->hasAll('token_type', 'access_token', 'expires_in')
+            ->where('token_type', 'bearer')
+            ->whereAllType([
+                'token_type' => 'string',
+                'expires_in' => 'integer',
+                'access_token' => 'string',
+            ])
+            ->etc()
         )->assertStatus(200);
     }
 
-    public function test_user_cannot_get_jwt_token_with_incorrect_credentials(): void
+    /**
+     * @test
+     */
+    public function user_cannot_get_jwt_token_with_incorrect_credentials(): void
     {
         $this->withoutExceptionHandling();
 

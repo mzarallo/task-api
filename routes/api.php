@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\RoleController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -24,8 +25,12 @@ Route::name('api.')->group(function () {
 
     //Routes with authentication required
     Route::middleware('auth:api')->group(function () {
-        Route::middleware('can:list-permissions')->prefix('permissions')->name('permissions.')->group( function () {
+        Route::middleware('can:list-permissions')->prefix('permissions')->name('permissions.')->group(function () {
             Route::get('/', [PermissionController::class, 'all'])->name('all');
+        });
+
+        Route::middleware('can:list-roles')->prefix('roles')->name('roles.')->group(function () {
+            Route::get('/', [RoleController::class, 'all'])->name('all');
         });
     });
 });

@@ -25,6 +25,10 @@ class DatabaseSeeder extends Seeder
         Comment::factory(300)->create();
 
         $this->call([
+            RoleSeeder::class
+        ]);
+
+        $this->call([
             PermissionSeeder::class
         ]);
     }
