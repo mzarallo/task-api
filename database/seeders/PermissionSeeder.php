@@ -36,6 +36,7 @@ class PermissionSeeder extends Seeder
             ['name' => 'list-tasks', 'category' => 'Tasks'],
             ['name' => 'list-comments', 'category' => 'Comments'],
             ['name' => 'list-permissions', 'category' => 'Permissions'],
+            ['name' => 'list-roles', 'category' => 'Roles'],
         ];
 
         foreach ($permissions as $permission) {
