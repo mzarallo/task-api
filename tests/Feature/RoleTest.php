@@ -35,7 +35,7 @@ class RoleTest extends TestCase
     /**
      * @test
      */
-    public function user_cannot_get_permissions_without_authorization(): void
+    public function user_cannot_get_roles_without_authorization(): void
     {
         $this->actingAs(User::find(2));
 
