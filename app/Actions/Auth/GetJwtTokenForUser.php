@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace App\Actions\Auth;
 
-use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class GetJwtTokenForUserService
+class GetJwtTokenForUser
 {
     use AsAction;
 
