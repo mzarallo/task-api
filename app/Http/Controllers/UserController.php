@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Actions\DeleteUserById;
-use App\Actions\GetUserById;
+use App\Actions\User\DeleteUserById;
+use App\Actions\User\GetUserById;
 use App\Actions\User\GetAllUsers;
 use App\Http\Resources\UserResource;
 use Illuminate\Database\Eloquent\ModelNotFoundException;

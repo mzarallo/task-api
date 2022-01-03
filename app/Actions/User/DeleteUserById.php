@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Actions;
+declare(strict_types=1);
+
+namespace App\Actions\User;
 
 use App\Models\User;
 use Lorisleiva\Actions\Concerns\AsAction;
