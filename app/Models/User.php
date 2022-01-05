@@ -1,17 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Spatie\Permission\Traits\HasPermissions;
 use Spatie\Permission\Traits\HasRoles;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticable implements JWTSubject
 {
-    use HasFactory, Notifiable, HasRoles, HasPermissions;
+    use HasFactory;
+    use Notifiable;
+    use HasRoles;
+    use HasPermissions;
 
     /**
      * The attributes that are mass assignable.
@@ -20,6 +27,9 @@ class User extends Authenticable implements JWTSubject
      */
     protected $fillable = [
         'name',
+        'last_name',
+        'abbreviation',
+        'profile_img_url',
         'email',
         'password',
     ];
@@ -42,6 +52,19 @@ class User extends Authenticable implements JWTSubject
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::updating(fn (User $model) => $model->abbreviation = Str::upper(Str::substr($model->name, 0, 1).Str::substr($model->last_name, 0, 1))
+        );
+
+        static::creating(function (User $model) {
+            $model->abbreviation = Str::upper(Str::substr($model->name, 0, 1).Str::substr($model->last_name, 0, 1));
+            $model->password = Hash::make($model->password);
+        });
+    }
 
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
