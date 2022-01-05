@@ -38,6 +38,8 @@ Route::name('api.')->group(function () {
             Route::middleware('can:list-users')->get('/', [UserController::class, 'all'])->name('all');
             Route::middleware('can:list-users')->get('/{id}', [UserController::class, 'getById'])->name('getById');
             Route::middleware('can:delete-users')->delete('/{id}', [UserController::class, 'deleteById'])->name('deleteById');
+            Route::middleware('can:edit-users')->patch('/{id}', [UserController::class, 'updateById'])->name('updateById');
+            Route::middleware('can:create-users')->post('/', [UserController::class, 'create'])->name('create');
         });
     });
 });
