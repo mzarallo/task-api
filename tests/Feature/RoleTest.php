@@ -15,7 +15,7 @@ class RoleTest extends TestCase
      */
     public function user_can_obtain_all_roles(): void
     {
-        $this->actingAs(User::all()->first());
+        $this->actingAs(User::find(1));
         $this->withoutExceptionHandling();
 
         $response = $this->json('GET', route('api.roles.all'));

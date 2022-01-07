@@ -15,7 +15,7 @@ class PermissionTest extends TestCase
      */
     public function user_can_obtain_all_permissions(): void
     {
-        $this->actingAs(User::all()->first());
+        $this->actingAs(User::find(1));
 
         $response = $this->json('GET', route('api.permissions.all'));
 
