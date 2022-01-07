@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\AuthenticationController;
+use App\Http\Controllers\BoardController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
@@ -40,6 +41,10 @@ Route::name('api.')->group(function () {
             Route::middleware('can:delete-users')->delete('/{id}', [UserController::class, 'deleteById'])->name('deleteById');
             Route::middleware('can:edit-users')->patch('/{id}', [UserController::class, 'updateById'])->name('updateById');
             Route::middleware('can:create-users')->post('/', [UserController::class, 'create'])->name('create');
+        });
+
+        Route::prefix('boards')->name('boards.')->group(function () {
+            Route::middleware('can:list-boards')->get('/', [BoardController::class, 'all'])->name('all');
         });
     });
 });
