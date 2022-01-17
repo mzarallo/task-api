@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Models\Board;
 use App\Models\User;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\TestCase;
@@ -44,6 +45,58 @@ class BoardTest extends TestCase
         $this->actingAs(User::find(10));
 
         $response = $this->json('GET', route('api.boards.all'));
+
+        $response->assertStatus(403);
+    }
+
+    /**
+     * @test
+     */
+    public function user_can_get_single_board_by_id(): void
+    {
+        $this->actingAs(User::find(1));
+        $board = Board::all()->random();
+
+        $response = $this->json('GET', route('api.boards.getById', ['id' => $board->id]));
+
+        $response->assertJson(fn (AssertableJson $json) => $json->has('data', fn (AssertableJson $json) => $json->hasAll('id', 'name', 'hex_color', 'author_id', 'author_full_name')
+            ->whereAllType([
+                'id' => 'integer',
+                'name' => 'string',
+                'hex_color' => 'string',
+                'author_id' => 'integer',
+                'author_full_name' => 'string',
+            ])
+            ->where('id', $board->id)
+            ->where('name', $board->name)
+            ->where('hex_color', $board->hex_color)
+            ->where('author_id', $board->author_id)
+        )
+        )->assertStatus(200);
+    }
+
+    /**
+     * @test
+     */
+    public function user_gets_404_error_when_he_wants_to_get_a_board_that_does_not_exist(): void
+    {
+        $this->actingAs(User::find(1));
+        $this->withoutExceptionHandling();
+
+        $response = $this->json('GET', route('api.boards.getById', ['id' => 99]));
+
+        $response->assertStatus(404);
+    }
+
+    /**
+     * @test
+     */
+    public function user_cannot_get_single_board_by_id_without_permission(): void
+    {
+        $this->actingAs(User::find(10));
+        $board = Board::all()->random();
+
+        $response = $this->json('GET', route('api.boards.getById', ['id' => $board->id]));
 
         $response->assertStatus(403);
     }
