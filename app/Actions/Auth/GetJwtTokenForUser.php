@@ -13,7 +13,8 @@ class GetJwtTokenForUser
 
     public function handle(string $email, string $password): object
     {
-        if (! $token = $this->attemptLogin(['email' => $email, 'password' => $password])) {
+        $token = $this->attemptLogin(['email' => $email, 'password' => $password]);
+        if (! $token) {
             return throw new AuthenticationException('No autorizado');
         }
 
