@@ -45,6 +45,7 @@ Route::name('api.')->group(function () {
 
         Route::prefix('boards')->name('boards.')->group(function () {
             Route::middleware('can:list-boards')->get('/', [BoardController::class, 'all'])->name('all');
+            Route::middleware('can:list-boards')->get('/{id}', [BoardController::class, 'getById'])->name('getById');
         });
     });
 });
