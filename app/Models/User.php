@@ -57,7 +57,8 @@ class User extends Authenticable implements JWTSubject
     {
         parent::boot();
 
-        static::updating(fn (User $model) => $model->abbreviation = Str::upper(Str::substr($model->name, 0, 1).Str::substr($model->last_name, 0, 1))
+        static::updating(
+            fn (User $model) => $model->abbreviation = Str::upper(Str::substr($model->name, 0, 1).Str::substr($model->last_name, 0, 1))
         );
 
         static::creating(function (User $model) {
