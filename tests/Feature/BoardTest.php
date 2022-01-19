@@ -100,4 +100,45 @@ class BoardTest extends TestCase
 
         $response->assertStatus(403);
     }
+
+    /**
+     * @test
+     */
+    public function user_can_delete_board_by_id(): void
+    {
+        $this->withoutExceptionHandling();
+        $this->actingAs(User::find(1));
+        $board = Board::all()->random();
+
+        $response = $this->json('DELETE', route('api.boards.deleteById', ['id' => $board->id]));
+        $response->assertStatus(204);
+
+        $response = $this->json('GET', route('api.boards.getById', ['id' => $board->id]));
+        $response->assertStatus(404);
+    }
+
+    /**
+     * @test
+     */
+    public function user_cannot_delete_board_by_id_without_permissions(): void
+    {
+        $this->actingAs(User::find(10));
+        $board = Board::all()->random();
+
+        $response = $this->json('DELETE', route('api.boards.deleteById', ['id' => $board->id]));
+        $response->assertStatus(403);
+    }
+
+    /**
+     * @test
+     */
+    public function user_gets_404_error_when_he_wants_to_delete_a_board_that_does_not_exist(): void
+    {
+        $this->actingAs(User::find(1));
+        $this->withoutExceptionHandling();
+
+        $response = $this->json('GET', route('api.boards.getById', ['id' => 99]));
+
+        $response->assertStatus(404);
+    }
 }
