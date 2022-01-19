@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Actions\Board\DeleteBoardById;
 use App\Actions\Board\GetAllBoards;
 use App\Actions\Board\GetBoardById;
 use App\Http\Resources\BoardResource;
@@ -23,7 +24,18 @@ class BoardController extends Controller
         try {
             return new BoardResource($getBoardById->run($boardId));
         } catch (ModelNotFoundException) {
-            return response()->json(['message' => 'User not found'], 404);
+            return response()->json(['message' => 'Board not found'], 404);
+        }
+    }
+
+    public function deleteById(int $boardId, DeleteBoardById $deleteBoardById): JsonResponse
+    {
+        try {
+            $deleteBoardById->run($boardId);
+
+            return response()->json([], 204);
+        } catch (ModelNotFoundException) {
+            return response()->json(['message' => 'Board not found'], 404);
         }
     }
 }
