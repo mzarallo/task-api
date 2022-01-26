@@ -11,12 +11,8 @@ class BoardResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'slug' => $this->slug,
-            'order' => $this->order,
-            'is_final_stage' => $this->is_final_stage,
             'hex_color' => $this->hex_color,
             'author_id' => $this->author_id,
-            'board_id' => $this->board_id,
             'author_full_name' => $this->author_full_name
         ];
     }
