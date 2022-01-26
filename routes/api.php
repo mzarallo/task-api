@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\StageController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -49,6 +50,11 @@ Route::name('api.')->group(function () {
             Route::middleware('can:delete-boards')->delete('/{id}', [BoardController::class, 'deleteById'])->name('deleteById');
             Route::middleware('can:edit-boards')->patch('/{id}', [BoardController::class, 'updateById'])->name('updateById');
             Route::middleware('can:create-boards')->post('/', [BoardController::class, 'create'])->name('create');
+
+            Route::name('stages.')->group(function () {
+                Route::middleware('can:list-stages')->get('/{boardId}/stages', [StageController::class, 'all'])->name('all');
+                Route::middleware('can:list-stages')->get('/{boardId}/stages/{stageId}', [StageController::class, 'getById'])->name('getById');
+            });
         });
     });
 });
