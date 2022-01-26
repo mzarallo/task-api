@@ -7,6 +7,8 @@ namespace App\Http\Controllers;
 use App\Actions\Board\DeleteBoardById;
 use App\Actions\Board\GetAllBoards;
 use App\Actions\Board\GetBoardById;
+use App\Actions\Board\UpdateBoardById;
+use App\Http\Requests\UpdateBoardRequest;
 use App\Http\Resources\BoardResource;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
@@ -34,6 +36,17 @@ class BoardController extends Controller
             $deleteBoardById->run($boardId);
 
             return response()->json([], 204);
+        } catch (ModelNotFoundException) {
+            return response()->json(['message' => 'Board not found'], 404);
+        }
+    }
+
+    public function updateById(int $boardId, UpdateBoardRequest $request, UpdateBoardById $updateBoardById): JsonResponse
+    {
+        try {
+            $boardResource = new BoardResource($updateBoardById->run($boardId, $request->validated()));
+
+            return response()->json($boardResource);
         } catch (ModelNotFoundException) {
             return response()->json(['message' => 'Board not found'], 404);
         }

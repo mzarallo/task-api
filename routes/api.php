@@ -47,6 +47,7 @@ Route::name('api.')->group(function () {
             Route::middleware('can:list-boards')->get('/', [BoardController::class, 'all'])->name('all');
             Route::middleware('can:list-boards')->get('/{id}', [BoardController::class, 'getById'])->name('getById');
             Route::middleware('can:delete-boards')->delete('/{id}', [BoardController::class, 'deleteById'])->name('deleteById');
+            Route::middleware('can:edit-boards')->patch('/{id}', [BoardController::class, 'updateById'])->name('updateById');
         });
     });
 });

@@ -6,11 +6,13 @@ namespace Tests\Feature;
 
 use App\Models\Board;
 use App\Models\User;
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\TestCase;
 
 class BoardTest extends TestCase
 {
+    use WithFaker;
     /**
      * @test
      */
@@ -138,6 +140,61 @@ class BoardTest extends TestCase
         $this->withoutExceptionHandling();
 
         $response = $this->json('GET', route('api.boards.getById', ['id' => 99]));
+
+        $response->assertStatus(404);
+    }
+
+    /**
+     * @test
+     */
+    public function user_can_update_boards(): void
+    {
+        $this->withoutExceptionHandling();
+        $this->actingAs(User::find(1));
+        $board = Board::all()->random();
+
+        $name = $this->faker->name();
+        $hexColor = $this->faker->hexColor();
+
+        $response = $this->json('PATCH', route('api.boards.updateById', ['id' => $board->id]), [
+            'name' => $name,
+            'hex_color' => $hexColor,
+        ]);
+
+        $response->assertJson(fn (AssertableJson $json) => $json->where('name', $name)
+            ->where('hex_color', $hexColor)
+            ->etc()
+        )->assertStatus(200);
+    }
+
+    /**
+     * @test
+     */
+    public function user_cannot_update_boards_without_permissions(): void
+    {
+        $this->actingAs(User::find(2));
+        $board = Board::all()->random();
+
+        $name = $this->faker->name();
+        $hexColor = $this->faker->hexColor();
+
+        $response = $this->json('PATCH', route('api.boards.updateById', ['id' => $board->id]), [
+            'name' => $name,
+            'last_name' => $hexColor,
+        ]);
+
+        $response->assertStatus(403);
+    }
+
+    /**
+     * @test
+     */
+    public function user_gets_404_error_when_he_wants_update_a_board_that_does_not_exist(): void
+    {
+        $this->actingAs(User::find(1));
+        $this->withoutExceptionHandling();
+
+        $response = $this->json('PATCH', route('api.boards.updateById', ['id' => 99]));
 
         $response->assertStatus(404);
     }
