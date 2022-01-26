@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
@@ -85,5 +86,10 @@ class User extends Authenticable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    public function boards(): HasMany
+    {
+        return $this->hasMany(Board::class, 'author_id');
     }
 }

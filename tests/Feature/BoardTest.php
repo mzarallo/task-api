@@ -149,7 +149,6 @@ class BoardTest extends TestCase
      */
     public function user_can_update_boards(): void
     {
-        $this->withoutExceptionHandling();
         $this->actingAs(User::find(1));
         $board = Board::all()->random();
 
@@ -172,7 +171,7 @@ class BoardTest extends TestCase
      */
     public function user_cannot_update_boards_without_permissions(): void
     {
-        $this->actingAs(User::find(2));
+        $this->actingAs(User::find(10));
         $board = Board::all()->random();
 
         $name = $this->faker->name();
@@ -192,10 +191,51 @@ class BoardTest extends TestCase
     public function user_gets_404_error_when_he_wants_update_a_board_that_does_not_exist(): void
     {
         $this->actingAs(User::find(1));
-        $this->withoutExceptionHandling();
 
         $response = $this->json('PATCH', route('api.boards.updateById', ['id' => 99]));
 
         $response->assertStatus(404);
+    }
+
+    /**
+     * @test
+     */
+    public function user_can_create_boards(): void
+    {
+        $this->actingAs(User::find(1));
+
+        $name = $this->faker->name();
+        $hexColor = $this->faker->hexColor();
+
+        $response = $this->json('POST', route('api.boards.create', [
+            'name' => $name,
+            'hex_color' => $hexColor,
+        ]));
+
+
+
+        $response->assertJson(fn (AssertableJson $json) => $json->where('name', $name)
+            ->where('hex_color', $hexColor)
+            ->etc()
+        )->assertStatus(201);
+    }
+
+    /**
+     * @test
+     */
+    public function user_cannot_create_boards_with_incorrect_data(): void
+    {
+        $this->actingAs(User::find(1));
+
+        $response = $this->json('POST', route('api.boards.create', []));
+
+        $response->assertJson(fn (AssertableJson $json) => $json->has('message')
+            ->has('errors')
+            ->whereType('errors', 'array')
+            ->whereType('message', 'string')
+            ->has('errors', fn (AssertableJson $json) => $json->hasAll(['name', 'hex_color']))
+            ->where('message', 'The given data was invalid.')
+            ->etc()
+        )->assertStatus(422);
     }
 }

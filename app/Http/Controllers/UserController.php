@@ -56,12 +56,8 @@ class UserController extends Controller
 
     public function create(CreateUserRequest $request, CreateUser $createUser): JsonResponse
     {
-        try {
-            $userResource = new UserResource($createUser->run($request->validated()));
+        $userResource = new UserResource($createUser->run($request->validated()));
 
-            return response()->json($userResource, 201);
-        } catch (ModelNotFoundException) {
-            return response()->json(['message' => 'User not found'], 404);
-        }
+        return response()->json($userResource, 201);
     }
 }
