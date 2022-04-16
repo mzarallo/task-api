@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\User;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\TestCase;
 
 class RoleTest extends TestCase
 {
+    use DatabaseMigrations;
+
     /**
      * @test
      */
@@ -20,7 +23,10 @@ class RoleTest extends TestCase
 
         $response = $this->json('GET', route('api.roles.all'));
 
-        $response->assertJson(fn (AssertableJson $json) => $json->has('data.0', fn (AssertableJson $json) => $json->hasAll('id', 'name', 'guard', 'created_at', 'updated_at')
+        $response->assertJson(
+            fn (AssertableJson $json) => $json->has(
+            'data.0',
+            fn (AssertableJson $json) => $json->hasAll('id', 'name', 'guard', 'created_at', 'updated_at')
             ->whereAllType([
                 'id' => 'integer',
                 'name' => 'string',
@@ -28,7 +34,7 @@ class RoleTest extends TestCase
                 'created_at' => 'string',
                 'updated_at' => 'string',
             ])
-            )
+        )
         )->assertStatus(200);
     }
 

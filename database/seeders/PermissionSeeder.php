@@ -77,6 +77,6 @@ class PermissionSeeder extends Seeder
 
         User::find(1)->assignRole('Administrator');
 
-        User::where('id', '!=', 1)->where('id', '<', 10)->get()->each( fn (User $user) => $user->assignRole(Arr::random(['Seller', 'Sales Manager'], 1)));
+        User::where('id', '!=', 1)->where('id', '<', 10)->get()->each(fn (User $user) => $user->assignRole(Arr::random(['Seller', 'Sales Manager'], 1)));
     }
 }

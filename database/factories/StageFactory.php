@@ -26,8 +26,8 @@ class StageFactory extends Factory
             'hex_color' => $this->faker->hexColor(),
             'order' => $this->faker->numberBetween(0, 100),
             'is_final_stage' => $this->faker->boolean,
-            'board_id' => Board::all()->random()->id,
-            'author_id' => User::all()->random()->id,
+            'board_id' => Board::factory()->create()->id,
+            'author_id' => User::factory()->create()->id,
         ];
     }
 }

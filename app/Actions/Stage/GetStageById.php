@@ -12,9 +12,10 @@ class GetStageById
 {
     use AsAction;
 
-    public function handle(int $stageId, int $belongToBoardId = null, array $relations = []): Stage
+    public function handle(int $stageId, array $whereClause = [], array $relations = []): Stage
     {
-        return Stage::when($belongToBoardId , fn (Builder $query) => $query->where('board_id', $belongToBoardId))
+        return Stage::query()
+            ->when($whereClause , fn (Builder $query) => $query->where($whereClause))
             ->with($relations)
             ->findOrFail($stageId);
     }

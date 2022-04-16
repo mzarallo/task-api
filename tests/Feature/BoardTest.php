@@ -6,13 +6,15 @@ namespace Tests\Feature;
 
 use App\Models\Board;
 use App\Models\User;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\TestCase;
 
 class BoardTest extends TestCase
 {
-    use WithFaker;
+    use WithFaker, DatabaseMigrations;
+
     /**
      * @test
      */
@@ -23,11 +25,14 @@ class BoardTest extends TestCase
 
         $response = $this->json('GET', route('api.boards.all'));
 
-        $response->assertJson(fn (AssertableJson $json) => $json
+        $response->assertJson(
+            fn (AssertableJson $json) => $json
             ->has('links', fn (AssertableJson $json) => $json->hasAll('first', 'last', 'prev', 'next'))
             ->has('meta', fn (AssertableJson $json) => $json->hasAll('current_page', 'from', 'last_page', 'links', 'path', 'per_page', 'to', 'total')
             ->has('links.0', fn (AssertableJson $json) => $json->hasAll('url', 'label', 'active')))
-            ->has('data.0', fn (AssertableJson $json) => $json->hasAll('id', 'name', 'hex_color', 'author_id', 'author_full_name')
+            ->has(
+                'data.0',
+                fn (AssertableJson $json) => $json->hasAll('id', 'name', 'hex_color', 'author_id', 'author_full_name')
             ->whereAllType([
                 'id' => 'integer',
                 'name' => 'string',
@@ -57,11 +62,14 @@ class BoardTest extends TestCase
     public function user_can_get_single_board_by_id(): void
     {
         $this->actingAs(User::find(1));
-        $board = Board::all()->random();
+        $board = Board::factory()->create();
 
         $response = $this->json('GET', route('api.boards.getById', ['id' => $board->id]));
 
-        $response->assertJson(fn (AssertableJson $json) => $json->has('data', fn (AssertableJson $json) => $json->hasAll('id', 'name', 'hex_color', 'author_id', 'author_full_name')
+        $response->assertJson(
+            fn (AssertableJson $json) => $json->has(
+            'data',
+            fn (AssertableJson $json) => $json->hasAll('id', 'name', 'hex_color', 'author_id', 'author_full_name')
             ->whereAllType([
                 'id' => 'integer',
                 'name' => 'string',
@@ -96,7 +104,7 @@ class BoardTest extends TestCase
     public function user_cannot_get_single_board_by_id_without_permission(): void
     {
         $this->actingAs(User::find(10));
-        $board = Board::all()->random();
+        $board = Board::factory()->create();
 
         $response = $this->json('GET', route('api.boards.getById', ['id' => $board->id]));
 
@@ -110,7 +118,7 @@ class BoardTest extends TestCase
     {
         $this->withoutExceptionHandling();
         $this->actingAs(User::find(1));
-        $board = Board::all()->random();
+        $board = Board::factory()->create();
 
         $response = $this->json('DELETE', route('api.boards.deleteById', ['id' => $board->id]));
         $response->assertStatus(204);
@@ -125,7 +133,7 @@ class BoardTest extends TestCase
     public function user_cannot_delete_board_by_id_without_permissions(): void
     {
         $this->actingAs(User::find(10));
-        $board = Board::all()->random();
+        $board = Board::factory()->create();
 
         $response = $this->json('DELETE', route('api.boards.deleteById', ['id' => $board->id]));
         $response->assertStatus(403);
@@ -150,7 +158,7 @@ class BoardTest extends TestCase
     public function user_can_update_boards(): void
     {
         $this->actingAs(User::find(1));
-        $board = Board::all()->random();
+        $board = Board::factory()->create();
 
         $name = $this->faker->name();
         $hexColor = $this->faker->hexColor();
@@ -160,7 +168,8 @@ class BoardTest extends TestCase
             'hex_color' => $hexColor,
         ]);
 
-        $response->assertJson(fn (AssertableJson $json) => $json->where('name', $name)
+        $response->assertJson(
+            fn (AssertableJson $json) => $json->where('name', $name)
             ->where('hex_color', $hexColor)
             ->etc()
         )->assertStatus(200);
@@ -172,7 +181,7 @@ class BoardTest extends TestCase
     public function user_cannot_update_boards_without_permissions(): void
     {
         $this->actingAs(User::find(10));
-        $board = Board::all()->random();
+        $board = Board::factory()->create();
 
         $name = $this->faker->name();
         $hexColor = $this->faker->hexColor();
@@ -212,9 +221,8 @@ class BoardTest extends TestCase
             'hex_color' => $hexColor,
         ]));
 
-
-
-        $response->assertJson(fn (AssertableJson $json) => $json->where('name', $name)
+        $response->assertJson(
+            fn (AssertableJson $json) => $json->where('name', $name)
             ->where('hex_color', $hexColor)
             ->etc()
         )->assertStatus(201);
@@ -229,7 +237,8 @@ class BoardTest extends TestCase
 
         $response = $this->json('POST', route('api.boards.create', []));
 
-        $response->assertJson(fn (AssertableJson $json) => $json->has('message')
+        $response->assertJson(
+            fn (AssertableJson $json) => $json->has('message')
             ->has('errors')
             ->whereType('errors', 'array')
             ->whereType('message', 'string')
