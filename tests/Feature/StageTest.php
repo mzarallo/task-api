@@ -113,4 +113,47 @@ class StageTest extends TestCase
 
         $response->assertStatus(403);
     }
+
+    /**
+     * @test
+     */
+    public function user_can_delete_stage_by_id(): void
+    {
+        $this->withoutExceptionHandling();
+        $this->actingAs(User::find(1));
+        $stage = Stage::all()->random();
+
+        $response = $this->json('DELETE', route('api.boards.stages.deleteById',
+            [
+                'boardId' => $stage->board_id,
+                'stageId' => $stage->id
+            ]
+        ));
+        $response->assertStatus(204);
+
+        $response = $this->json('GET', route('api.boards.stages.getById',
+            [
+                'boardId' => $stage->board_id,
+                'stageId' => $stage->id
+            ]
+        ));
+        $response->assertStatus(404);
+    }
+
+    /**
+     * @test
+     */
+    public function user_cannot_delete_stage_by_id_without_permissions(): void
+    {
+        $this->actingAs(User::find(10));
+        $stage = Stage::all()->random();
+
+        $response = $this->json('DELETE', route('api.boards.stages.deleteById',
+            [
+                'boardId' => $stage->board_id,
+                'stageId' => $stage->id
+            ]
+        ));
+        $response->assertStatus(403);
+    }
 }
