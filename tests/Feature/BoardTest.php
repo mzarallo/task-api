@@ -234,7 +234,7 @@ class BoardTest extends TestCase
             ->whereType('errors', 'array')
             ->whereType('message', 'string')
             ->has('errors', fn (AssertableJson $json) => $json->hasAll(['name', 'hex_color']))
-            ->where('message', 'The given data was invalid.')
+            ->has('message')
             ->etc()
         )->assertStatus(422);
     }

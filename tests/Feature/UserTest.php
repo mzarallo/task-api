@@ -264,7 +264,7 @@ class UserTest extends TestCase
             ->whereType('errors', 'array')
             ->whereType('message', 'string')
             ->has('errors', fn (AssertableJson $json) => $json->hasAll(['name', 'last_name', 'email', 'role']))
-            ->where('message', 'The given data was invalid.')
+            ->has('message')
             ->etc()
         )->assertStatus(422);
     }
