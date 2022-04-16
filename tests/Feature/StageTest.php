@@ -5,13 +5,16 @@ namespace Tests\Feature;
 use App\Models\Board;
 use App\Models\Stage;
 use App\Models\User;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\TestCase;
 
 class StageTest extends TestCase
 {
-    use WithFaker;
+    use WithFaker, DatabaseMigrations;
     /**
      * @test
      */
@@ -19,9 +22,9 @@ class StageTest extends TestCase
     {
         $this->actingAs(User::find(1));
         $this->withoutExceptionHandling();
-        $board = Board::all()->random();
+        $stage = Stage::factory()->create();
 
-        $response = $this->json('GET', route('api.boards.stages.all', ['boardId' => $board]));
+        $response = $this->json('GET', route('api.boards.stages.all', ['board' => $stage->board_id]));
 
         $response->assertJson(fn (AssertableJson $json) => $json
             ->has('links', fn (AssertableJson $json) => $json->hasAll('first', 'last', 'prev', 'next'))
@@ -48,9 +51,9 @@ class StageTest extends TestCase
     public function user_cannot_get_stages_without_authorization(): void
     {
         $this->actingAs(User::find(10));
-        $stage = Stage::all()->random();
+        $stage = Stage::factory()->create();
 
-        $response = $this->json('GET', route('api.boards.stages.all', ['boardId' => $stage->board_id, 'stageId' => $stage]));
+        $response = $this->json('GET', route('api.boards.stages.all', ['board' => $stage->board_id, 'stage' => $stage]));
 
         $response->assertStatus(403);
     }
@@ -63,7 +66,7 @@ class StageTest extends TestCase
         $this->actingAs(User::find(1));
         $stage = Stage::with(['author'])->get()->random();
 
-        $response = $this->json('GET', route('api.boards.stages.getById', ['boardId' => $stage->board_id, 'stageId' => $stage]));
+        $response = $this->json('GET', route('api.boards.stages.getById', ['board' => $stage->board_id, 'stage' => $stage]));
 
         $response->assertJson(fn (AssertableJson $json) => $json->has('data', fn (AssertableJson $json) =>
             $json->hasAll('id', 'name', 'slug', 'hex_color', 'order', 'is_final_stage', 'author_full_name')
@@ -96,7 +99,7 @@ class StageTest extends TestCase
         $this->actingAs(User::find(1));
         $this->withoutExceptionHandling();
 
-        $response = $this->json('GET', route('api.boards.stages.getById', ['boardId' => 99, 'stageId' => 99]));
+        $response = $this->json('GET', route('api.boards.stages.getById', ['board' => 99, 'stage' => 99]));
 
         $response->assertStatus(404);
     }
@@ -107,9 +110,9 @@ class StageTest extends TestCase
     public function user_cannot_get_single_stage_by_id_without_permission(): void
     {
         $this->actingAs(User::find(10));
-        $stage = Stage::all()->random();
+        $stage = Stage::factory()->create();
 
-        $response = $this->json('GET', route('api.boards.stages.getById', ['boardId' => $stage->board_id, 'stageId' => $stage]));
+        $response = $this->json('GET', route('api.boards.stages.getById', ['board' => $stage->board_id, 'stage' => $stage]));
 
         $response->assertStatus(403);
     }
@@ -121,20 +124,20 @@ class StageTest extends TestCase
     {
         $this->withoutExceptionHandling();
         $this->actingAs(User::find(1));
-        $stage = Stage::all()->random();
+        $stage = Stage::factory()->create();
 
         $response = $this->json('DELETE', route('api.boards.stages.deleteById',
             [
-                'boardId' => $stage->board_id,
-                'stageId' => $stage->id
+                'board' => $stage->board_id,
+                'stage' => $stage->id
             ]
         ));
         $response->assertStatus(204);
 
         $response = $this->json('GET', route('api.boards.stages.getById',
             [
-                'boardId' => $stage->board_id,
-                'stageId' => $stage->id
+                'board' => $stage->board_id,
+                'stage' => $stage->id
             ]
         ));
         $response->assertStatus(404);
@@ -146,14 +149,70 @@ class StageTest extends TestCase
     public function user_cannot_delete_stage_by_id_without_permissions(): void
     {
         $this->actingAs(User::find(10));
-        $stage = Stage::all()->random();
+        $stage = Stage::factory()->create();
 
         $response = $this->json('DELETE', route('api.boards.stages.deleteById',
             [
-                'boardId' => $stage->board_id,
-                'stageId' => $stage->id
+                'board' => $stage->board_id,
+                'stage' => $stage->id
             ]
         ));
         $response->assertStatus(403);
+    }
+
+    /**
+     * @test
+     */
+    /**
+     * @test
+     */
+    public function user_can_update_stages(): void
+    {
+        $this->withoutExceptionHandling();
+        $this->actingAs(User::find(1));
+        $stage = Stage::factory()->create();
+        $attributes = $this->getAttributes()->only(['name', 'hex_color']);
+
+        $response = $this->json('PATCH', route('api.boards.stages.updateById', [
+            'board' => $stage->board_id,
+            'stage' => $stage->id
+        ]), $attributes->toArray());
+
+
+        $response->assertJson(fn (AssertableJson $json) => $json->where('name', $attributes->get('name'))
+            ->where('hex_color', $attributes->get('hex_color'))
+            ->etc()
+        )->assertStatus(200);
+    }
+
+    /**
+     * @test
+     */
+    public function user_cannot_update_stages_without_permissions(): void
+    {
+        $this->actingAs(User::find(10));
+        $stage = Stage::factory()->create();
+
+        $response = $this->json('PATCH', route('api.boards.stages.updateById', [
+            'board' => $stage->board_id,
+            'stage' => $stage->id
+        ]), []);
+
+        $response->assertStatus(403);
+    }
+
+    private function getAttributes(): Collection
+    {
+        $name = $this->faker->name;
+
+        return Collection::make([
+            'name' => $name,
+            'slug' => Str::slug($name),
+            'hex_color' => $this->faker->hexColor,
+            'order' => $this->faker->randomNumber(2),
+            'is_final_stage' => $this->faker->boolean,
+            'board_id' => Board::factory()->create()->id,
+            'author_id' => User::factory()->create()->id,
+        ]);
     }
 }

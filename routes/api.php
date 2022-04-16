@@ -65,11 +65,13 @@ Route::name('api.')->group(function () {
 
                 Route::name('stages.')->controller(StageController::class)->group(function () {
                     Route::middleware('can:list-stages')
-                    ->get('/{boardId}/stages', 'all')->name('all');
+                        ->get('/{board}/stages', 'all')->name('all');
                     Route::middleware('can:list-stages')
-                    ->get('/{boardId}/stages/{stageId}', 'getById')->name('getById');
+                        ->get('/{board}/stages/{stage}', 'getById')->name('getById');
                     Route::middleware('can:delete-stages')
-                    ->delete('/{boardId}/stages/{stageId}', 'deleteById')->name('deleteById');
+                        ->delete('/{board}/stages/{stage}', 'deleteById')->name('deleteById');
+                    Route::middleware('can:edit-stages')
+                        ->patch('/{board}/stages/{stage}', 'updateById')->name('updateById');
                 });
             });
     });
