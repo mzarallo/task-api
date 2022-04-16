@@ -28,32 +28,46 @@ Route::name('api.')->group(function () {
 
     //Routes with authentication required
     Route::middleware('auth:api')->group(function () {
-        Route::middleware('can:list-permissions')->prefix('permissions')->name('permissions.')->group(function () {
-            Route::get('/', [PermissionController::class, 'all'])->name('all');
+        Route::prefix('permissions')->name('permissions.')
+            ->controller(PermissionController::class)->group(function () {
+                Route::middleware('can:list-permissions')->get('/', 'all')->name('all');
         });
 
-        Route::middleware('can:list-roles')->prefix('roles')->name('roles.')->group(function () {
-            Route::get('/', [RoleController::class, 'all'])->name('all');
+        Route::name('roles.')->controller(RoleController::class)->group(function () {
+            Route::middleware('can:list-roles')->get('/', 'all')->name('all');
         });
 
-        Route::prefix('users')->name('users.')->group(function () {
-            Route::middleware('can:list-users')->get('/', [UserController::class, 'all'])->name('all');
-            Route::middleware('can:list-users')->get('/{id}', [UserController::class, 'getById'])->name('getById');
-            Route::middleware('can:delete-users')->delete('/{id}', [UserController::class, 'deleteById'])->name('deleteById');
-            Route::middleware('can:edit-users')->patch('/{id}', [UserController::class, 'updateById'])->name('updateById');
-            Route::middleware('can:create-users')->post('/', [UserController::class, 'create'])->name('create');
+        Route::prefix('users')->name('users.')
+            ->controller(UserController::class)->group(function () {
+                Route::middleware('can:list-users')->get('/', 'all')->name('all');
+                Route::middleware('can:list-users')
+                    ->get('/{id}', 'getById')->name('getById');
+                Route::middleware('can:delete-users')
+                    ->delete('/{id}', 'deleteById')->name('deleteById');
+                Route::middleware('can:edit-users')
+                    ->patch('/{id}', 'updateById')->name('updateById');
+                Route::middleware('can:create-users')
+                    ->post('/', 'create')->name('create');
         });
 
-        Route::prefix('boards')->name('boards.')->group(function () {
-            Route::middleware('can:list-boards')->get('/', [BoardController::class, 'all'])->name('all');
-            Route::middleware('can:list-boards')->get('/{id}', [BoardController::class, 'getById'])->name('getById');
-            Route::middleware('can:delete-boards')->delete('/{id}', [BoardController::class, 'deleteById'])->name('deleteById');
-            Route::middleware('can:edit-boards')->patch('/{id}', [BoardController::class, 'updateById'])->name('updateById');
-            Route::middleware('can:create-boards')->post('/', [BoardController::class, 'create'])->name('create');
+        Route::prefix('boards')->name('boards.')
+            ->controller(BoardController::class)->group(function () {
+                Route::middleware('can:list-boards')
+                    ->get('/', 'all')->name('all');
+                Route::middleware('can:list-boards')
+                    ->get('/{id}', 'getById')->name('getById');
+                Route::middleware('can:delete-boards')
+                    ->delete('/{id}', 'deleteById')->name('deleteById');
+                Route::middleware('can:edit-boards')
+                    ->patch('/{id}', 'updateById')->name('updateById');
+                Route::middleware('can:create-boards')
+                    ->post('/', 'create')->name('create');
 
-            Route::name('stages.')->group(function () {
-                Route::middleware('can:list-stages')->get('/{boardId}/stages', [StageController::class, 'all'])->name('all');
-                Route::middleware('can:list-stages')->get('/{boardId}/stages/{stageId}', [StageController::class, 'getById'])->name('getById');
+            Route::name('stages.')->controller(StageController::class)->group(function () {
+                Route::middleware('can:list-stages')
+                    ->get('/{boardId}/stages', 'all')->name('all');
+                Route::middleware('can:list-stages')
+                    ->get('/{boardId}/stages/{stageId}', 'getById')->name('getById');
             });
         });
     });
