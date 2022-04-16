@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\User;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\TestCase;
 
 class PermissionTest extends TestCase
 {
+    use DatabaseMigrations;
+
     /**
      * @test
      */
@@ -19,7 +22,10 @@ class PermissionTest extends TestCase
 
         $response = $this->json('GET', route('api.permissions.all'));
 
-        $response->assertJson(fn (AssertableJson $json) => $json->has('data.0', fn (AssertableJson $json) => $json->hasAll('id', 'name', 'category', 'guard', 'created_at', 'updated_at')
+        $response->assertJson(
+            fn (AssertableJson $json) => $json->has(
+                'data.0',
+                fn (AssertableJson $json) => $json->hasAll('id', 'name', 'category', 'guard', 'created_at', 'updated_at')
                     ->whereAllType([
                         'id' => 'integer',
                         'name' => 'string',

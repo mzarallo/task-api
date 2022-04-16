@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\User;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
 {
+    use DatabaseMigrations;
+
     /**
      * @test
      */
@@ -22,7 +25,8 @@ class AuthenticationTest extends TestCase
             'password' => 'password',
         ]);
 
-        $response->assertJson(fn (AssertableJson $json) => $json
+        $response->assertJson(
+            fn (AssertableJson $json) => $json
             ->hasAll('token_type', 'access_token', 'expires_in')
             ->where('token_type', 'bearer')
             ->whereAllType([

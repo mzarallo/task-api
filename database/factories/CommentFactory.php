@@ -17,9 +17,9 @@ class CommentFactory extends Factory
     {
         return [
             'description' => $this->faker->text(),
-            'author_id' => User::all()->random()->id,
+            'author_id' => User::factory()->create()->id,
             'reply_to_comment_id' => null,
-            'task_id' => Task::all()->random()->id,
+            'task_id' => Task::factory()->create()->id,
         ];
     }
 }

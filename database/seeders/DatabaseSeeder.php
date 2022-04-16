@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
 use App\Models\Board;
@@ -16,13 +18,9 @@ class DatabaseSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         User::factory(10)->create();
-        Board::factory(3)->create();
-        Stage::factory(15)->create();
-        Task::factory(100)->create();
-        Comment::factory(300)->create();
 
         $this->call([
             RoleSeeder::class
@@ -31,5 +29,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             PermissionSeeder::class
         ]);
+
+        Comment::factory(10)->create();
     }
 }

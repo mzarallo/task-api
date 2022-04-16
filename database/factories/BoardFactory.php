@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Models\User;
@@ -17,12 +19,7 @@ class BoardFactory extends Factory
         return [
             'name' => $this->faker->company(),
             'hex_color' => $this->faker->hexColor(),
-            'author_id' => $this->getRandomUserId()
+            'author_id' => User::factory()->create()->id,
         ];
-    }
-
-    private function getRandomUserId(): int
-    {
-        return User::all()->random()->id;
     }
 }

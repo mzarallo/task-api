@@ -16,3 +16,4 @@ yarn-error.log
 .php-cs-fixer.cache
 DS_Store
 .DS_Store
+.env.testing

@@ -20,8 +20,8 @@ class TaskFactory extends Factory
         return [
             'title' => $this->faker->realText(20),
             'description' => $this->faker->realText(350),
-            'author_id' => User::all()->random()->id,
-            'stage_id' => Stage::all()->random()->id,
+            'author_id' => User::factory()->create()->id,
+            'stage_id' => Stage::factory()->create()->id,
             'tags' => \json_encode(['UI', 'DEV', 'QA']),
         ];
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -12,11 +14,11 @@ class UserFactory extends Factory
      *
      * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         $name = $this->faker->name();
         $lastName = $this->faker->lastName();
-        $abbreviation = Str::upper(Str::substr($name,0, 1).Str::substr($lastName,0,1));
+        $abbreviation = Str::upper(Str::substr($name, 0, 1).Str::substr($lastName, 0, 1));
 
         return [
             'name' => $name,
@@ -34,7 +36,7 @@ class UserFactory extends Factory
      *
      * @return \Illuminate\Database\Eloquent\Factories\Factory
      */
-    public function unverified()
+    public function unverified(): Factory
     {
         return $this->state(function (array $attributes) {
             return [
