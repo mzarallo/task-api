@@ -62,4 +62,4 @@ jobs:
     - name: Run migrations and seeders
       run: php artisan migrate:fresh --seed --force
     - name: Execute tests (Unit and Feature tests) via PHPUnit
-      run: php artisan test
+      run: php artisan test --parallel
