@@ -1,16 +1,32 @@
-name: CI
+name: Build & Test
 
 on:
   push:
-    branches: [ main, staging, dev, feat/**, fix/**, refact/**, perf/**, test/**, build/** ]
+    branches:
+      - "main"
+      - "feat/**"
+      - "fix/**"
+      - "seed/**"
+      - "refact/**"
+      - "perf/**"
+      - "dev"
+      - "qa"
     paths:
-    - 'app/**'
-    - 'tests/**'
+      - "app/**"
+      - "tests/**"
   pull_request:
-    branches: [ main ]
+    branches:
+      - "main"
+      - "feat/**"
+      - "fix/**"
+      - "seed/**"
+      - "refact/**"
+      - "perf/**"
+      - "dev"
+      - "qa"
     paths:
-    - 'app/**'
-    - 'tests/**'
+      - "app/**"
+      - "tests/**"
 jobs:
   laravel-ci:
     name: Laravel PHP 8.1
