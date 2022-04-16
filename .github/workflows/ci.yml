@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, staging, dev, feat/**, fix/**, refact/**, perf/**, test/**, build/** ]
     paths:
     - 'app/**'
     - 'tests/**'
@@ -13,7 +13,7 @@ on:
     - 'tests/**'
 jobs:
   laravel-ci:
-    name: Laravel PHP 8.0
+    name: Laravel PHP 8.1
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -29,7 +29,7 @@ jobs:
     steps:
     - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
       with:
-        php-version: '8.0'
+        php-version: '8.1'
     - uses: actions/checkout@v2
     - name: Copy .env
       run: cp .env.ci .env
