@@ -68,6 +68,8 @@ Route::name('api.')->group(function () {
                     ->get('/{boardId}/stages', 'all')->name('all');
                 Route::middleware('can:list-stages')
                     ->get('/{boardId}/stages/{stageId}', 'getById')->name('getById');
+                Route::middleware('can:delete-stages')
+                    ->delete('/{boardId}/stages/{stageId}', 'deleteById')->name('deleteById');
             });
         });
     });
