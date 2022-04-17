@@ -5,30 +5,33 @@
 
 ## Acerca de Task App
 
-API Rest para el manejo de tareas en tableros al estilo Trello de manera más básica.
+API Rest para el manejo de tareas en tableros al estilo Trello de manera más básica. El objetivo del proyecto es ser utilizado **como portafolio**
 
 ## Características
 
-✅ Migraciones
-✅ Factories
-✅ Seeders
-✅ Autenticación JWT
-✅ Manejo de Roles y permisos 
-✅ CRUD de usuarios
-✅ CRUD de tableros
-🏗️ CRUD de etapas 
-🟡 CRUD de tareas
-🟡 CRUD de comentarios
-🟡 Manejo de Cache
-🟡 Manejo de Event/Listener
-🟡 Envío de Emails
-🟡 Notificaciones en tiempo real con sockets
-🏗️ Unit y Features test
-🟡 Descarga de tableros en formato .xlsx y .pdf 
+| Característica | Estado | Descripción |
+| ------ | ------ |
+| Migraciones | ✅ |  |
+| Factories | ✅ |  |
+| Seeders | ✅ |  |
+| Api Autenticación JWT | 🔵 | Falta endpoint para refrescar token |
+| Roles y Permisos | ✅ |  |
+| Api Usuarios | ✅ |  |
+| Api Tableros | ✅ |  |
+| Api Etapas | 🏗️ |  |
+| Api Tareas | 🟡 |  |
+| Api Comentarios | 🟡 |  |
+| Cache | 🟡 |  |
+| Event/Listeners | 🟡 |  |
+| Mails | 🟡 |  |
+| Notificaciones | 🟡 |  |
+| Unit & Features Test | 🏗️ |  |
+| Descarga de tables .xlsx y .pdf | 🟡 |  |
 
 ##Leyendas
 
 ✅ OK 
+🔵 Parcial
 🏗️ En construcción
 🟡 Pendiente
 
