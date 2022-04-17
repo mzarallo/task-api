@@ -13,13 +13,13 @@ Es una Api REST para el manejo de tareas en tableros al estilo Trello de manera 
 - ✨ Manejo de Roles y permisos
 - ✨ CRUD de usuarios
 - ✨ CRUD de tableros
-- ✨ CRUD de etapas
-- ✨ CRUD de tareas
-- ✨ CRUD de comentarios
-- ✨ Manejo de Cache
-- ✨ Manejo de Event/Listener
-- ✨ Envío de Emails
-- ✨ Notificaciones en tiempo real con sockets (Pusher)
-- ✨ Unit y Features test
-- ✨ Descarga de tableros en formato .xlsx y .pdf
+- ✨ CRUD de etapas (en progreso)
+- ✨ CRUD de tareas (en espera)
+- ✨ CRUD de comentarios (en espera)
+- ✨ Manejo de Cache (en espera)
+- ✨ Manejo de Event/Listener (en espera)
+- ✨ Envío de Emails (en espera)
+- ✨ Notificaciones en tiempo real con sockets (en espera)
+- ✨ Unit y Features test (en progreso)
+- ✨ Descarga de tableros en formato .xlsx y .pdf (en espera)
 
