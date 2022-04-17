@@ -10,7 +10,7 @@ API Rest para el manejo de tareas en tableros al estilo Trello de manera más b�
 ## Características
 
 | Característica | Estado | Descripción |
-| ------ | ------ |
+| ------ | ------ | ------ |
 | Migraciones | ✅ |  |
 | Factories | ✅ |  |
 | Seeders | ✅ |  |
