@@ -28,7 +28,7 @@ API Rest para el manejo de tareas en tableros al estilo Trello de manera más b�
 | Unit & Features Test | 🏗️ |  |
 | Descarga de tables .xlsx y .pdf | 🟡 |  |
 
-##Leyendas
+## Leyendas
 
 ✅ OK 
 🔵 Parcial
