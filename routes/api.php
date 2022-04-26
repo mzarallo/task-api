@@ -72,6 +72,10 @@ Route::name('api.')->group(function () {
                         ->delete('/{board}/stages/{stage}', 'deleteById')->name('deleteById');
                     Route::middleware('can:edit-stages')
                         ->patch('/{board}/stages/{stage}', 'updateById')->name('updateById');
+                    Route::middleware('can:edit-stages')
+                        ->patch('/{board}/stages/{stage}', 'updateById')->name('updateById');
+                    Route::middleware('can:create-stages')
+                        ->post('/{board}/stages', 'create')->name('create');
                 });
             });
     });

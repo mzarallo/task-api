@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Actions\Stage\CreateStage;
 use App\Actions\Stage\DeleteStageById;
 use App\Actions\Stage\GetAllStages;
 use App\Actions\Stage\GetStageById;
 use App\Actions\Stage\UpdateStageById;
+use App\Http\Requests\CreateStageRequest;
 use App\Http\Resources\StageResource;
 use App\Models\Board;
 use App\Models\Stage;
@@ -54,5 +56,12 @@ class StageController extends Controller
         $stageUpdated = new StageResource($updateStageById->handle($stage, $request->all()));
 
         return response()->json($stageUpdated);
+    }
+
+    public function create(CreateStageRequest $request, CreateStage $createStage): JsonResponse
+    {
+        $boardResource = new StageResource($createStage->run($request->validated()));
+
+        return response()->json($boardResource, 201);
     }
 }

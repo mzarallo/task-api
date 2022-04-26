@@ -20,14 +20,20 @@ class Stage extends Model
         'hex_color',
         'is_final_stage',
         'order',
+        'board_id',
+        'author_id'
     ];
 
     protected static function boot()
     {
         parent::boot();
 
-        static::updating( fn ($model) => $model->slug = Str::slug($model->name));
-        static::creating( fn ($model) => $model->slug = Str::slug($model->name));
+        static::creating( function ($model) {
+            $model->slug = Str::slug($model->name);
+        });
+        static::updating( function ($model) {
+            $model->slug = Str::slug($model->name);
+        });
     }
 
     public function author(): BelongsTo

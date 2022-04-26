@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature;
 
 use App\Models\Board;
@@ -15,22 +17,25 @@ use Tests\TestCase;
 class StageTest extends TestCase
 {
     use WithFaker, DatabaseMigrations;
+
     /**
      * @test
      */
     public function user_can_get_all_stages(): void
     {
         $this->actingAs(User::find(1));
-        $this->withoutExceptionHandling();
         $stage = Stage::factory()->create();
 
         $response = $this->json('GET', route('api.boards.stages.all', ['board' => $stage->board_id]));
 
-        $response->assertJson(fn (AssertableJson $json) => $json
+        $response->assertJson(
+            fn (AssertableJson $json) => $json
             ->has('links', fn (AssertableJson $json) => $json->hasAll('first', 'last', 'prev', 'next'))
             ->has('meta', fn (AssertableJson $json) => $json->hasAll('current_page', 'from', 'last_page', 'links', 'path', 'per_page', 'to', 'total')
                 ->has('links.0', fn (AssertableJson $json) => $json->hasAll('url', 'label', 'active')))
-            ->has('data.0', fn (AssertableJson $json) => $json->hasAll('id', 'name', 'slug', 'hex_color', 'order', 'is_final_stage', 'author_full_name')
+            ->has(
+                'data.0',
+                fn (AssertableJson $json) => $json->hasAll('id', 'name', 'slug', 'hex_color', 'order', 'is_final_stage', 'author_full_name')
                 ->whereAllType([
                     'id' => 'integer',
                     'name' => 'string',
@@ -68,8 +73,10 @@ class StageTest extends TestCase
 
         $response = $this->json('GET', route('api.boards.stages.getById', ['board' => $stage->board_id, 'stage' => $stage]));
 
-        $response->assertJson(fn (AssertableJson $json) => $json->has('data', fn (AssertableJson $json) =>
-            $json->hasAll('id', 'name', 'slug', 'hex_color', 'order', 'is_final_stage', 'author_full_name')
+        $response->assertJson(
+            fn (AssertableJson $json) => $json->has(
+                'data',
+                fn (AssertableJson $json) => $json->hasAll('id', 'name', 'slug', 'hex_color', 'order', 'is_final_stage', 'author_full_name')
                 ->whereAllType([
                     'id' => 'integer',
                     'name' => 'string',
@@ -87,7 +94,7 @@ class StageTest extends TestCase
                 ->where('order', $stage->order)
                 ->where('is_final_stage', $stage->is_final_stage)
                 ->where('author_full_name', $stage->author_full_name)
-        )
+            )
         )->assertStatus(200);
     }
 
@@ -126,18 +133,20 @@ class StageTest extends TestCase
         $this->actingAs(User::find(1));
         $stage = Stage::factory()->create();
 
-        $response = $this->json('DELETE', route('api.boards.stages.deleteById',
+        $response = $this->json('DELETE', route(
+            'api.boards.stages.deleteById',
             [
                 'board' => $stage->board_id,
-                'stage' => $stage->id
+                'stage' => $stage->id,
             ]
         ));
         $response->assertStatus(204);
 
-        $response = $this->json('GET', route('api.boards.stages.getById',
+        $response = $this->json('GET', route(
+            'api.boards.stages.getById',
             [
                 'board' => $stage->board_id,
-                'stage' => $stage->id
+                'stage' => $stage->id,
             ]
         ));
         $response->assertStatus(404);
@@ -151,10 +160,11 @@ class StageTest extends TestCase
         $this->actingAs(User::find(10));
         $stage = Stage::factory()->create();
 
-        $response = $this->json('DELETE', route('api.boards.stages.deleteById',
+        $response = $this->json('DELETE', route(
+            'api.boards.stages.deleteById',
             [
                 'board' => $stage->board_id,
-                'stage' => $stage->id
+                'stage' => $stage->id,
             ]
         ));
         $response->assertStatus(403);
@@ -175,11 +185,11 @@ class StageTest extends TestCase
 
         $response = $this->json('PATCH', route('api.boards.stages.updateById', [
             'board' => $stage->board_id,
-            'stage' => $stage->id
+            'stage' => $stage->id,
         ]), $attributes->toArray());
 
-
-        $response->assertJson(fn (AssertableJson $json) => $json->where('name', $attributes->get('name'))
+        $response->assertJson(
+            fn (AssertableJson $json) => $json->where('name', $attributes->get('name'))
             ->where('hex_color', $attributes->get('hex_color'))
             ->etc()
         )->assertStatus(200);
@@ -195,7 +205,76 @@ class StageTest extends TestCase
 
         $response = $this->json('PATCH', route('api.boards.stages.updateById', [
             'board' => $stage->board_id,
-            'stage' => $stage->id
+            'stage' => $stage->id,
+        ]), []);
+
+        $response->assertStatus(403);
+    }
+
+    /**
+     * @test
+     */
+    public function user_can_create_stages(): void
+    {
+        $this->actingAs(User::find(1));
+
+        $board = Board::factory()->create();
+
+        $response = $this->json('POST', route('api.boards.stages.create', [
+            'board' => $board->id,
+        ]), $this->getAttributes()->toArray());
+
+        $response->assertJson(
+            fn (AssertableJson $json) => $json->hasAll([
+                'name',
+                'slug',
+                'hex_color',
+                'order',
+                'is_final_stage',
+                'board_id',
+                'author_id',
+            ])->etc()
+        )->assertStatus(201);
+    }
+
+    /**
+     * @test
+     */
+    public function user_cannot_create_stages_with_incorrect_data(): void
+    {
+        $this->actingAs(User::find(1));
+        $board = Board::factory()->create();
+
+        $response = $this->json('POST', route('api.boards.stages.create', [
+            'board' => $board->id,
+        ]), []);
+
+        $response->assertJson(
+            fn (AssertableJson $json) => $json->has('message')
+                ->has('errors')
+                ->has('message')
+                ->whereType('errors', 'array')
+                ->whereType('message', 'string')
+                ->has('errors', fn (AssertableJson $json) => $json->hasAll([
+                    'name',
+                    'hex_color',
+                    'order',
+                    'board_id',
+                ]))
+                ->etc()
+        )->assertStatus(422);
+    }
+
+    /**
+     * @test
+     */
+    public function user_cannot_create_stages_without_permissions(): void
+    {
+        $this->actingAs(User::find(10));
+        $board = Board::factory()->create();
+
+        $response = $this->json('POST', route('api.boards.stages.create', [
+            'board' => $board->id,
         ]), []);
 
         $response->assertStatus(403);
@@ -203,7 +282,7 @@ class StageTest extends TestCase
 
     private function getAttributes(): Collection
     {
-        $name = $this->faker->name;
+        $name = $this->faker->randomElement(['Pending', 'In progress', 'Finished']);
 
         return Collection::make([
             'name' => $name,

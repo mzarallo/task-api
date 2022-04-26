@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\Board;
 use App\Models\Comment;
-use App\Models\Stage;
-use App\Models\Task;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -23,11 +20,11 @@ class DatabaseSeeder extends Seeder
         User::factory(10)->create();
 
         $this->call([
-            RoleSeeder::class
+            RoleSeeder::class,
         ]);
 
         $this->call([
-            PermissionSeeder::class
+            PermissionSeeder::class,
         ]);
 
         Comment::factory(10)->create();
