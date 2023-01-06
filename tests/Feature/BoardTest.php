@@ -6,8 +6,10 @@ namespace Tests\Feature;
 
 use App\Models\Board;
 use App\Models\User;
+use Database\Seeders\PermissionSeeder;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Collection;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\TestCase;
 
@@ -20,10 +22,12 @@ class BoardTest extends TestCase
      */
     public function user_can_get_all_boards(): void
     {
-        $this->actingAs(User::find(1));
-        $this->withoutExceptionHandling();
+        $this->seed(PermissionSeeder::class);
+        Board::factory()->count(2)->create();
 
-        $response = $this->json('GET', route('api.boards.all'));
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('list-boards'))
+            ->getJson(route('api.boards.all'));
 
         $response->assertJson(
             fn (AssertableJson $json) => $json
@@ -31,7 +35,8 @@ class BoardTest extends TestCase
             ->has('meta', fn (AssertableJson $json) => $json->hasAll('current_page', 'from', 'last_page', 'links', 'path', 'per_page', 'to', 'total')
             ->has('links.0', fn (AssertableJson $json) => $json->hasAll('url', 'label', 'active')))
             ->has(
-                'data.0',
+                'data',
+                2,
                 fn (AssertableJson $json) => $json->hasAll('id', 'name', 'hex_color', 'author_id', 'author_full_name')
             ->whereAllType([
                 'id' => 'integer',
@@ -41,7 +46,7 @@ class BoardTest extends TestCase
                 'author_full_name' => 'string',
             ])
             )
-        )->assertStatus(200);
+        )->assertOk();
     }
 
     /**
@@ -49,11 +54,11 @@ class BoardTest extends TestCase
      */
     public function user_cannot_get_boards_without_authorization(): void
     {
-        $this->actingAs(User::find(10));
+        $response = $this
+            ->actingAs(User::factory()->create())
+            ->getJson(route('api.boards.all'));
 
-        $response = $this->json('GET', route('api.boards.all'));
-
-        $response->assertStatus(403);
+        $response->assertForbidden();
     }
 
     /**
@@ -61,28 +66,30 @@ class BoardTest extends TestCase
      */
     public function user_can_get_single_board_by_id(): void
     {
-        $this->actingAs(User::find(1));
+        $this->seed(PermissionSeeder::class);
         $board = Board::factory()->create();
 
-        $response = $this->json('GET', route('api.boards.getById', ['id' => $board->id]));
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('list-boards'))
+            ->getJson(route('api.boards.getById', [$board]));
 
         $response->assertJson(
             fn (AssertableJson $json) => $json->has(
-            'data',
-            fn (AssertableJson $json) => $json->hasAll('id', 'name', 'hex_color', 'author_id', 'author_full_name')
+                'data',
+                fn (AssertableJson $json) => $json->hasAll('id', 'name', 'hex_color', 'author_id', 'author_full_name')
             ->whereAllType([
                 'id' => 'integer',
                 'name' => 'string',
                 'hex_color' => 'string',
                 'author_id' => 'integer',
                 'author_full_name' => 'string',
-            ])
-            ->where('id', $board->id)
-            ->where('name', $board->name)
-            ->where('hex_color', $board->hex_color)
-            ->where('author_id', $board->author_id)
-        )
-        )->assertStatus(200);
+            ])->whereAll(
+                collect($board->getAttributes())->only([
+                    'name', 'hex_color', 'author_id', 'author_full_name',
+                ])->toArray()
+            )
+            )
+        )->assertOk();
     }
 
     /**
@@ -90,12 +97,13 @@ class BoardTest extends TestCase
      */
     public function user_gets_404_error_when_he_wants_to_get_a_board_that_does_not_exist(): void
     {
-        $this->actingAs(User::find(1));
-        $this->withoutExceptionHandling();
+        $this->seed(PermissionSeeder::class);
 
-        $response = $this->json('GET', route('api.boards.getById', ['id' => 99]));
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('list-boards'))
+            ->getJson(route('api.boards.getById', ['board' => 99]));
 
-        $response->assertStatus(404);
+        $response->assertNotFound();
     }
 
     /**
@@ -103,12 +111,11 @@ class BoardTest extends TestCase
      */
     public function user_cannot_get_single_board_by_id_without_permission(): void
     {
-        $this->actingAs(User::find(10));
-        $board = Board::factory()->create();
+        $response = $this
+            ->actingAs(User::factory()->create())
+            ->getJson(route('api.boards.getById', [Board::factory()->create()]));
 
-        $response = $this->json('GET', route('api.boards.getById', ['id' => $board->id]));
-
-        $response->assertStatus(403);
+        $response->assertForbidden();
     }
 
     /**
@@ -116,15 +123,15 @@ class BoardTest extends TestCase
      */
     public function user_can_delete_board_by_id(): void
     {
-        $this->withoutExceptionHandling();
-        $this->actingAs(User::find(1));
+        $this->seed(PermissionSeeder::class);
         $board = Board::factory()->create();
 
-        $response = $this->json('DELETE', route('api.boards.deleteById', ['id' => $board->id]));
-        $response->assertStatus(204);
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('delete-boards'))
+            ->deleteJson(route('api.boards.deleteById', [$board]));
 
-        $response = $this->json('GET', route('api.boards.getById', ['id' => $board->id]));
-        $response->assertStatus(404);
+        $response->assertStatus(204);
+        $this->assertDatabaseMissing('boards', ['id' => $board->id]);
     }
 
     /**
@@ -132,11 +139,10 @@ class BoardTest extends TestCase
      */
     public function user_cannot_delete_board_by_id_without_permissions(): void
     {
-        $this->actingAs(User::find(10));
-        $board = Board::factory()->create();
-
-        $response = $this->json('DELETE', route('api.boards.deleteById', ['id' => $board->id]));
-        $response->assertStatus(403);
+        $response = $this
+            ->actingAs(User::factory()->create())
+            ->deleteJson(route('api.boards.deleteById', [Board::factory()->create()]));
+        $response->assertForbidden();
     }
 
     /**
@@ -144,12 +150,13 @@ class BoardTest extends TestCase
      */
     public function user_gets_404_error_when_he_wants_to_delete_a_board_that_does_not_exist(): void
     {
-        $this->actingAs(User::find(1));
-        $this->withoutExceptionHandling();
+        $this->seed(PermissionSeeder::class);
 
-        $response = $this->json('GET', route('api.boards.getById', ['id' => 99]));
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('delete-boards'))
+            ->deleteJson(route('api.boards.deleteById', ['board' => 99]));
 
-        $response->assertStatus(404);
+        $response->assertNotFound();
     }
 
     /**
@@ -157,22 +164,17 @@ class BoardTest extends TestCase
      */
     public function user_can_update_boards(): void
     {
-        $this->actingAs(User::find(1));
-        $board = Board::factory()->create();
+        $this->seed(PermissionSeeder::class);
+        $params = $this->getParams();
 
-        $name = $this->faker->name();
-        $hexColor = $this->faker->hexColor();
-
-        $response = $this->json('PATCH', route('api.boards.updateById', ['id' => $board->id]), [
-            'name' => $name,
-            'hex_color' => $hexColor,
-        ]);
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('edit-boards'))
+            ->patchJson(route('api.boards.updateById', [Board::factory()->create()]), $params->toArray());
 
         $response->assertJson(
-            fn (AssertableJson $json) => $json->where('name', $name)
-            ->where('hex_color', $hexColor)
+            fn (AssertableJson $json) => $json->whereAll($params->toArray())
             ->etc()
-        )->assertStatus(200);
+        )->assertOk();
     }
 
     /**
@@ -180,18 +182,13 @@ class BoardTest extends TestCase
      */
     public function user_cannot_update_boards_without_permissions(): void
     {
-        $this->actingAs(User::find(10));
-        $board = Board::factory()->create();
+        $params = $this->getParams();
 
-        $name = $this->faker->name();
-        $hexColor = $this->faker->hexColor();
+        $response = $this
+            ->actingAs(User::factory()->create())
+            ->patchJson(route('api.boards.updateById', [Board::factory()->create()]), $params->toArray());
 
-        $response = $this->json('PATCH', route('api.boards.updateById', ['id' => $board->id]), [
-            'name' => $name,
-            'last_name' => $hexColor,
-        ]);
-
-        $response->assertStatus(403);
+        $response->assertForbidden();
     }
 
     /**
@@ -199,11 +196,13 @@ class BoardTest extends TestCase
      */
     public function user_gets_404_error_when_he_wants_update_a_board_that_does_not_exist(): void
     {
-        $this->actingAs(User::find(1));
+        $this->seed(PermissionSeeder::class);
 
-        $response = $this->json('PATCH', route('api.boards.updateById', ['id' => 99]));
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('edit-boards'))
+            ->patchJson(route('api.boards.updateById', ['board' => 99]));
 
-        $response->assertStatus(404);
+        $response->assertNotFound();
     }
 
     /**
@@ -211,21 +210,17 @@ class BoardTest extends TestCase
      */
     public function user_can_create_boards(): void
     {
-        $this->actingAs(User::find(1));
+        $this->seed(PermissionSeeder::class);
+        $params = $this->getParams();
 
-        $name = $this->faker->name();
-        $hexColor = $this->faker->hexColor();
-
-        $response = $this->json('POST', route('api.boards.create', [
-            'name' => $name,
-            'hex_color' => $hexColor,
-        ]));
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('create-boards'))
+            ->postJson(route('api.boards.create'), $params->toArray());
 
         $response->assertJson(
-            fn (AssertableJson $json) => $json->where('name', $name)
-            ->where('hex_color', $hexColor)
+            fn (AssertableJson $json) => $json->whereAll($params->toArray())
             ->etc()
-        )->assertStatus(201);
+        )->assertCreated();
     }
 
     /**
@@ -233,9 +228,11 @@ class BoardTest extends TestCase
      */
     public function user_cannot_create_boards_with_incorrect_data(): void
     {
-        $this->actingAs(User::find(1));
+        $this->seed(PermissionSeeder::class);
 
-        $response = $this->json('POST', route('api.boards.create', []));
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('create-boards'))
+            ->postJson(route('api.boards.create', []));
 
         $response->assertJson(
             fn (AssertableJson $json) => $json->has('message')
@@ -245,6 +242,14 @@ class BoardTest extends TestCase
             ->has('errors', fn (AssertableJson $json) => $json->hasAll(['name', 'hex_color']))
             ->has('message')
             ->etc()
-        )->assertStatus(422);
+        )->assertUnprocessable();
+    }
+
+    private function getParams(): Collection
+    {
+        return Collection::make([
+            'name' => $this->faker->name,
+            'hex_color' => $this->faker->hexColor(),
+        ]);
     }
 }

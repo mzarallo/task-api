@@ -42,41 +42,5 @@ class PermissionSeeder extends Seeder
         foreach ($permissions as $permission) {
             Permission::create(['name' => $permission['name'], 'category' => $permission['category']]);
         }
-
-        Role::where('name', 'Administrator')->first()->givePermissionTo(Permission::all()->pluck('name')->toArray());
-        Role::where('name', 'Sales Manager')->first()->givePermissionTo([
-            'create-boards',
-            'create-stages',
-            'create-tasks',
-            'create-comments',
-            'edit-boards',
-            'edit-stages',
-            'edit-tasks',
-            'edit-comments',
-            'delete-boards',
-            'delete-stages',
-            'delete-tasks',
-            'delete-comments',
-            'list-boards',
-            'list-stages',
-            'list-tasks',
-            'list-comments',
-        ]);
-        Role::where('name', 'Seller')->first()->givePermissionTo([
-            'create-tasks',
-            'create-comments',
-            'edit-tasks',
-            'edit-comments',
-            'list-tasks',
-            'list-comments',
-            'delete-tasks',
-            'delete-comments',
-            'list-stages',
-            'list-boards',
-        ]);
-
-        User::find(1)->assignRole('Administrator');
-
-        User::where('id', '!=', 1)->where('id', '<', 10)->get()->each(fn (User $user) => $user->assignRole(Arr::random(['Seller', 'Sales Manager'], 1)));
     }
 }

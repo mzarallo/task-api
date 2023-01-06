@@ -6,6 +6,8 @@ namespace Tests\Feature;
 
 use App\Mail\CredentialsUserMail;
 use App\Models\User;
+use Database\Seeders\PermissionSeeder;
+use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Collection;
@@ -24,14 +26,16 @@ class UserTest extends TestCase
      */
     public function user_can_get_all_users(): void
     {
-        $this->actingAs(User::find(1));
-        $this->withoutExceptionHandling();
+        $this->seed(PermissionSeeder::class);
 
-        $response = $this->json('GET', route('api.users.all'));
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('list-users'))
+            ->getJson(route('api.users.all'));
 
         $response->assertJson(
             fn (AssertableJson $json) => $json->has(
-                'data.0',
+                'data',
+                1,
                 fn (AssertableJson $json) => $json->hasAll('id', 'name', 'last_name', 'abbreviation', 'img_profile', 'email')
                     ->whereAllType([
                         'id' => 'integer',
@@ -42,7 +46,7 @@ class UserTest extends TestCase
                         'email' => 'string',
                     ])
             )
-        )->assertStatus(200);
+        )->assertOk();
     }
 
     /**
@@ -50,11 +54,11 @@ class UserTest extends TestCase
      */
     public function user_cannot_get_users_without_authorization(): void
     {
-        $this->actingAs(User::find(2));
+        $response = $this
+            ->actingAs(User::factory()->create())
+            ->getJson(route('api.users.all'));
 
-        $response = $this->json('GET', route('api.users.all'));
-
-        $response->assertStatus(403);
+        $response->assertForbidden();
     }
 
     /**
@@ -62,10 +66,12 @@ class UserTest extends TestCase
      */
     public function user_can_get_single_user_by_id(): void
     {
-        $this->actingAs(User::find(1));
+        $this->seed(PermissionSeeder::class);
         $user = User::factory()->create();
 
-        $response = $this->json('GET', route('api.users.getById', ['id' => $user->id]));
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('list-users'))
+            ->getJson(route('api.users.getById', $user));
 
         $response->assertJson(
             fn (AssertableJson $json) => $json->has(
@@ -86,7 +92,7 @@ class UserTest extends TestCase
                     ->where('img_profile', $user->profile_img_url)
                     ->where('email', $user->email)
             )
-        )->assertStatus(200);
+        )->assertOk();
     }
 
     /**
@@ -94,12 +100,13 @@ class UserTest extends TestCase
      */
     public function user_gets_404_error_when_he_wants_to_get_a_user_that_does_not_exist(): void
     {
-        $this->actingAs(User::find(1));
-        $this->withoutExceptionHandling();
+        $this->seed(PermissionSeeder::class);
 
-        $response = $this->json('GET', route('api.users.getById', ['id' => 99]));
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('list-users'))
+            ->getJson(route('api.users.getById', ['user' => 99]));
 
-        $response->assertStatus(404);
+        $response->assertNotFound();
     }
 
     /**
@@ -107,12 +114,13 @@ class UserTest extends TestCase
      */
     public function user_cannot_get_single_user_by_id_without_permission(): void
     {
-        $this->actingAs(User::find(2));
         $user = User::factory()->create();
 
-        $response = $this->json('GET', route('api.users.getById', ['id' => $user->id]));
+        $response = $this
+            ->actingAs(User::factory()->create())
+            ->getJson(route('api.users.getById', $user));
 
-        $response->assertStatus(403);
+        $response->assertForbidden();
     }
 
     /**
@@ -120,15 +128,15 @@ class UserTest extends TestCase
      */
     public function user_can_delete_user_by_id(): void
     {
-        $this->withoutExceptionHandling();
-        $this->actingAs(User::find(1));
+        $this->seed(PermissionSeeder::class);
         $user = User::factory()->create();
 
-        $response = $this->json('DELETE', route('api.users.deleteById', ['id' => $user->id]));
-        $response->assertStatus(204);
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('delete-users'))
+            ->deleteJson(route('api.users.deleteById', $user));
 
-        $response = $this->json('GET', route('api.users.getById', ['id' => $user->id]));
-        $response->assertStatus(404);
+        $response->assertNoContent();
+        $this->assertDatabaseMissing('users', ['id' => $user->id]);
     }
 
     /**
@@ -136,11 +144,13 @@ class UserTest extends TestCase
      */
     public function user_cannot_delete_user_by_id_without_permissions(): void
     {
-        $this->actingAs(User::find(2));
         $user = User::factory()->create();
 
-        $response = $this->json('DELETE', route('api.users.deleteById', ['id' => $user->id]));
-        $response->assertStatus(403);
+        $response = $this
+            ->actingAs(User::factory()->create())
+            ->deleteJson(route('api.users.deleteById', $user));
+
+        $response->assertForbidden();
     }
 
     /**
@@ -148,10 +158,11 @@ class UserTest extends TestCase
      */
     public function user_gets_404_error_when_he_wants_to_delete_a_user_that_does_not_exist(): void
     {
-        $this->actingAs(User::find(1));
-        $this->withoutExceptionHandling();
+        $this->seed(PermissionSeeder::class);
 
-        $response = $this->json('GET', route('api.users.getById', ['id' => 99]));
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('delete-users'))
+            ->deleteJson(route('api.users.deleteById', ['user' => 99]));
 
         $response->assertStatus(404);
     }
@@ -161,29 +172,22 @@ class UserTest extends TestCase
      */
     public function user_can_update_users(): void
     {
-        $this->withoutExceptionHandling();
-        $this->actingAs(User::find(1));
+        $this->seed(RoleSeeder::class);
+        $this->seed(PermissionSeeder::class);
         $user = User::factory()->create();
+        $params = $this->getAttributes();
 
-        $name = $this->faker->name();
-        $lastName = $this->faker->lastName();
-        $imgUrl = $this->faker->url();
-        $abbreviation = Str::upper(Str::substr($name, 0, 1).Str::substr($lastName, 0, 1));
-
-        $response = $this->json('PATCH', route('api.users.updateById', ['id' => $user->id]), [
-            'name' => $name,
-            'last_name' => $lastName,
-            'profile_img_url' => $imgUrl,
-        ]);
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('edit-users'))
+            ->patchJson(route('api.users.updateById', $user), $params->only(['name', 'last_name'])->toArray());
 
         $response->assertJson(
-            fn (AssertableJson $json) => $json->where('name', $name)
-                ->where('name', $name)
-                ->where('last_name', $lastName)
-                ->where('img_profile', $imgUrl)
-                ->where('abbreviation', $abbreviation)
+            fn (AssertableJson $json) => $json
+                ->where('name', $params->get('name'))
+                ->where('last_name', $params->get('last_name'))
+                ->where('img_profile', $user->profile_img_url)
                 ->etc()
-        )->assertStatus(200);
+        )->assertOk();
     }
 
     /**
@@ -191,22 +195,13 @@ class UserTest extends TestCase
      */
     public function user_cannot_update_users_without_permissions(): void
     {
-        $this->actingAs(User::find(2));
         $user = User::factory()->create();
 
-        $name = $this->faker->name();
-        $lastName = $this->faker->lastName();
-        $imgUrl = $this->faker->url();
-        $email = $this->faker->email();
+        $response = $this
+            ->actingAs(User::factory()->create())
+            ->patchJson(route('api.users.updateById', $user), []);
 
-        $response = $this->json('PATCH', route('api.users.updateById', ['id' => $user->id]), [
-            'name' => $name,
-            'last_name' => $lastName,
-            'profile_img_url' => $imgUrl,
-            'email' => $email,
-        ]);
-
-        $response->assertStatus(403);
+        $response->assertForbidden();
     }
 
     /**
@@ -214,12 +209,13 @@ class UserTest extends TestCase
      */
     public function user_gets_404_error_when_he_wants_update_a_user_that_does_not_exist(): void
     {
-        $this->actingAs(User::find(1));
-        $this->withoutExceptionHandling();
+        $this->seed(PermissionSeeder::class);
 
-        $response = $this->json('PATCH', route('api.users.updateById', ['id' => 99]));
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('edit-users'))
+            ->patchJson(route('api.users.updateById', ['user' => 99]));
 
-        $response->assertStatus(404);
+        $response->assertNotFound();
     }
 
     /**
@@ -227,12 +223,14 @@ class UserTest extends TestCase
      */
     public function user_can_create_users(): void
     {
-        $this->withoutExceptionHandling();
         Mail::fake();
-        $this->actingAs(User::find(1));
+        $this->seed(RoleSeeder::class);
+        $this->seed(PermissionSeeder::class);
         $attributes = $this->getAttributes();
 
-        $response = $this->json('POST', route('api.users.create', $attributes->toArray()));
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('create-users'))
+            ->postJson(route('api.users.create', $attributes->toArray()));
 
         $response->assertJson(
             fn (AssertableJson $json) => $json->where('name', $attributes->get('name'))
@@ -242,7 +240,7 @@ class UserTest extends TestCase
                 ->where('abbreviation', $attributes->get('abbreviation'))
                 ->where('email', $attributes->get('email'))
                 ->etc()
-        )->assertStatus(201);
+        )->assertCreated();
         Mail::assertSent(CredentialsUserMail::class);
     }
 
@@ -251,9 +249,11 @@ class UserTest extends TestCase
      */
     public function user_cannot_create_users_with_incorrect_data(): void
     {
-        $this->actingAs(User::find(1));
+        $this->seed(PermissionSeeder::class);
 
-        $response = $this->json('POST', route('api.users.create', []));
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('create-users'))
+            ->postJson(route('api.users.create', []));
 
         $response->assertJson(
             fn (AssertableJson $json) => $json->has('message')
@@ -263,7 +263,7 @@ class UserTest extends TestCase
                 ->has('errors', fn (AssertableJson $json) => $json->hasAll(['name', 'last_name', 'email', 'role']))
                 ->has('message')
                 ->etc()
-        )->assertStatus(422);
+        )->assertUnprocessable();
     }
 
     private function getAttributes(): Collection

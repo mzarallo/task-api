@@ -7,6 +7,7 @@ namespace Tests\Feature;
 use App\Models\Board;
 use App\Models\Stage;
 use App\Models\User;
+use Database\Seeders\PermissionSeeder;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Collection;
@@ -23,10 +24,12 @@ class StageTest extends TestCase
      */
     public function user_can_get_all_stages(): void
     {
-        $this->actingAs(User::find(1));
-        $stage = Stage::factory()->create();
+        $this->seed(PermissionSeeder::class);
+        $board = Board::factory()->has(Stage::factory()->count(3))->create();
 
-        $response = $this->json('GET', route('api.boards.stages.all', ['board' => $stage->board_id]));
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('list-stages'))
+            ->getJson(route('api.boards.stages.all', $board));
 
         $response->assertJson(
             fn (AssertableJson $json) => $json
@@ -34,7 +37,8 @@ class StageTest extends TestCase
             ->has('meta', fn (AssertableJson $json) => $json->hasAll('current_page', 'from', 'last_page', 'links', 'path', 'per_page', 'to', 'total')
                 ->has('links.0', fn (AssertableJson $json) => $json->hasAll('url', 'label', 'active')))
             ->has(
-                'data.0',
+                'data',
+                3,
                 fn (AssertableJson $json) => $json->hasAll('id', 'name', 'slug', 'hex_color', 'order', 'is_final_stage', 'author_full_name')
                 ->whereAllType([
                     'id' => 'integer',
@@ -47,7 +51,7 @@ class StageTest extends TestCase
                 ])
                 ->etc()
             )
-        )->assertStatus(200);
+        )->assertOk();
     }
 
     /**
@@ -55,12 +59,12 @@ class StageTest extends TestCase
      */
     public function user_cannot_get_stages_without_authorization(): void
     {
-        $this->actingAs(User::find(10));
-        $stage = Stage::factory()->create();
+        $this->actingAs(User::factory()->create());
+        $board = Board::factory()->create();
 
-        $response = $this->json('GET', route('api.boards.stages.all', ['board' => $stage->board_id, 'stage' => $stage]));
+        $response = $this->getJson(route('api.boards.stages.all', $board));
 
-        $response->assertStatus(403);
+        $response->assertForbidden();
     }
 
     /**
@@ -68,10 +72,12 @@ class StageTest extends TestCase
      */
     public function user_can_get_single_stage_by_id(): void
     {
-        $this->actingAs(User::find(1));
-        $stage = Stage::with(['author'])->get()->random();
+        $this->seed(PermissionSeeder::class);
+        $stage = Stage::factory()->create();
 
-        $response = $this->json('GET', route('api.boards.stages.getById', ['board' => $stage->board_id, 'stage' => $stage]));
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('list-stages'))
+            ->getJson(route('api.boards.stages.getById', [$stage->board, $stage]));
 
         $response->assertJson(
             fn (AssertableJson $json) => $json->has(
@@ -95,7 +101,7 @@ class StageTest extends TestCase
                 ->where('is_final_stage', $stage->is_final_stage)
                 ->where('author_full_name', $stage->author_full_name)
             )
-        )->assertStatus(200);
+        )->assertOk();
     }
 
     /**
@@ -103,12 +109,13 @@ class StageTest extends TestCase
      */
     public function user_gets_404_error_when_he_wants_to_get_a_stage_that_does_not_exist(): void
     {
-        $this->actingAs(User::find(1));
-        $this->withoutExceptionHandling();
+        $this->seed(PermissionSeeder::class);
 
-        $response = $this->json('GET', route('api.boards.stages.getById', ['board' => 99, 'stage' => 99]));
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('list-stages'))
+            ->getJson(route('api.boards.stages.getById', ['board' => 99, 'stage' => 99]));
 
-        $response->assertStatus(404);
+        $response->assertNotFound();
     }
 
     /**
@@ -116,12 +123,12 @@ class StageTest extends TestCase
      */
     public function user_cannot_get_single_stage_by_id_without_permission(): void
     {
-        $this->actingAs(User::find(10));
+        $this->actingAs(User::factory()->create());
         $stage = Stage::factory()->create();
 
-        $response = $this->json('GET', route('api.boards.stages.getById', ['board' => $stage->board_id, 'stage' => $stage]));
+        $response = $this->getJson(route('api.boards.stages.getById', [$stage->board, $stage]));
 
-        $response->assertStatus(403);
+        $response->assertForbidden();
     }
 
     /**
@@ -129,27 +136,15 @@ class StageTest extends TestCase
      */
     public function user_can_delete_stage_by_id(): void
     {
-        $this->withoutExceptionHandling();
-        $this->actingAs(User::find(1));
+        $this->seed(PermissionSeeder::class);
         $stage = Stage::factory()->create();
 
-        $response = $this->json('DELETE', route(
-            'api.boards.stages.deleteById',
-            [
-                'board' => $stage->board_id,
-                'stage' => $stage->id,
-            ]
-        ));
-        $response->assertStatus(204);
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('delete-stages'))
+            ->deleteJson(route('api.boards.stages.deleteById', [$stage->board, $stage]));
 
-        $response = $this->json('GET', route(
-            'api.boards.stages.getById',
-            [
-                'board' => $stage->board_id,
-                'stage' => $stage->id,
-            ]
-        ));
-        $response->assertStatus(404);
+        $response->assertNoContent();
+        $this->assertDatabaseMissing('stages', ['id' => $stage->id]);
     }
 
     /**
@@ -157,42 +152,32 @@ class StageTest extends TestCase
      */
     public function user_cannot_delete_stage_by_id_without_permissions(): void
     {
-        $this->actingAs(User::find(10));
+        $this->actingAs(User::factory()->create());
         $stage = Stage::factory()->create();
 
-        $response = $this->json('DELETE', route(
-            'api.boards.stages.deleteById',
-            [
-                'board' => $stage->board_id,
-                'stage' => $stage->id,
-            ]
-        ));
-        $response->assertStatus(403);
+        $response = $this->deleteJson(route('api.boards.stages.deleteById', [$stage->board, $stage]));
+
+        $response->assertForbidden();
     }
 
     /**
      * @test
      */
-    /**
-     * @test
-     */
     public function user_can_update_stages(): void
     {
-        $this->withoutExceptionHandling();
-        $this->actingAs(User::find(1));
+        $this->seed(PermissionSeeder::class);
         $stage = Stage::factory()->create();
         $attributes = $this->getAttributes()->only(['name', 'hex_color']);
 
-        $response = $this->json('PATCH', route('api.boards.stages.updateById', [
-            'board' => $stage->board_id,
-            'stage' => $stage->id,
-        ]), $attributes->toArray());
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('edit-stages'))
+            ->patchJson(route('api.boards.stages.updateById', [$stage->board, $stage]), $attributes->toArray());
 
         $response->assertJson(
             fn (AssertableJson $json) => $json->where('name', $attributes->get('name'))
             ->where('hex_color', $attributes->get('hex_color'))
             ->etc()
-        )->assertStatus(200);
+        )->assertOk();
     }
 
     /**
@@ -200,15 +185,12 @@ class StageTest extends TestCase
      */
     public function user_cannot_update_stages_without_permissions(): void
     {
-        $this->actingAs(User::find(10));
+        $this->actingAs(User::factory()->create());
         $stage = Stage::factory()->create();
 
-        $response = $this->json('PATCH', route('api.boards.stages.updateById', [
-            'board' => $stage->board_id,
-            'stage' => $stage->id,
-        ]), []);
+        $response = $this->patchJson(route('api.boards.stages.updateById', [$stage->board, $stage]), []);
 
-        $response->assertStatus(403);
+        $response->assertForbidden();
     }
 
     /**
@@ -216,13 +198,12 @@ class StageTest extends TestCase
      */
     public function user_can_create_stages(): void
     {
-        $this->actingAs(User::find(1));
-
+        $this->seed(PermissionSeeder::class);
         $board = Board::factory()->create();
 
-        $response = $this->json('POST', route('api.boards.stages.create', [
-            'board' => $board->id,
-        ]), $this->getAttributes()->toArray());
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('create-stages'))
+            ->postJson(route('api.boards.stages.create', $board), $this->getAttributes()->toArray());
 
         $response->assertJson(
             fn (AssertableJson $json) => $json->hasAll([
@@ -234,7 +215,7 @@ class StageTest extends TestCase
                 'board_id',
                 'author_id',
             ])->etc()
-        )->assertStatus(201);
+        )->assertCreated();
     }
 
     /**
@@ -242,12 +223,12 @@ class StageTest extends TestCase
      */
     public function user_cannot_create_stages_with_incorrect_data(): void
     {
-        $this->actingAs(User::find(1));
+        $this->seed(PermissionSeeder::class);
         $board = Board::factory()->create();
 
-        $response = $this->json('POST', route('api.boards.stages.create', [
-            'board' => $board->id,
-        ]), []);
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('create-stages'))
+            ->postJson(route('api.boards.stages.create', $board), []);
 
         $response->assertJson(
             fn (AssertableJson $json) => $json->has('message')
@@ -262,7 +243,7 @@ class StageTest extends TestCase
                     'board_id',
                 ]))
                 ->etc()
-        )->assertStatus(422);
+        )->assertUnprocessable();
     }
 
     /**
@@ -270,14 +251,13 @@ class StageTest extends TestCase
      */
     public function user_cannot_create_stages_without_permissions(): void
     {
-        $this->actingAs(User::find(10));
         $board = Board::factory()->create();
 
-        $response = $this->json('POST', route('api.boards.stages.create', [
-            'board' => $board->id,
-        ]), []);
+        $response = $this
+            ->actingAs(User::factory()->create())
+            ->postJson(route('api.boards.stages.create', $board), []);
 
-        $response->assertStatus(403);
+        $response->assertForbidden();
     }
 
     private function getAttributes(): Collection

@@ -6,22 +6,23 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
 {
-    use DatabaseMigrations;
+    use DatabaseMigrations, WithFaker;
 
     /**
      * @test
      */
     public function user_can_obtain_jwt_token_with_correct_credentials(): void
     {
-        $this->withoutExceptionHandling();
+        $user = User::factory()->create();
 
-        $response = $this->json('POST', route('api.authentication.login'), [
-            'email' => User::all()->random()->email,
+        $response = $this->postJson(route('api.authentication.login'), [
+            'email' => $user->email,
             'password' => 'password',
         ]);
 
@@ -43,10 +44,8 @@ class AuthenticationTest extends TestCase
      */
     public function user_cannot_get_jwt_token_with_incorrect_credentials(): void
     {
-        $this->withoutExceptionHandling();
-
-        $response = $this->json('POST', route('api.authentication.login'), [
-            'email' => 'fakemail@email.com',
+        $response = $this->postJson(route('api.authentication.login'), [
+            'email' => $this->faker->email,
             'password' => 'password',
         ]);
 

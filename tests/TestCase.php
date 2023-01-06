@@ -12,8 +12,6 @@ abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication;
 
-    protected $seed = true;
-
     public function actingAs(UserContract $user, $guard = null): self
     {
         $token = JWTAuth::fromUser($user);

@@ -41,11 +41,11 @@ Route::name('api.')->group(function () {
             ->controller(UserController::class)->group(function () {
                 Route::middleware('can:list-users')->get('/', 'all')->name('all');
                 Route::middleware('can:list-users')
-                    ->get('/{id}', 'getById')->name('getById');
+                    ->get('/{user}', 'getById')->name('getById');
                 Route::middleware('can:delete-users')
-                    ->delete('/{id}', 'deleteById')->name('deleteById');
+                    ->delete('/{user}', 'deleteById')->name('deleteById');
                 Route::middleware('can:edit-users')
-                    ->patch('/{id}', 'updateById')->name('updateById');
+                    ->patch('/{user}', 'updateById')->name('updateById');
                 Route::middleware('can:create-users')
                     ->post('/', 'create')->name('create');
             });
@@ -55,11 +55,11 @@ Route::name('api.')->group(function () {
                 Route::middleware('can:list-boards')
                     ->get('/', 'all')->name('all');
                 Route::middleware('can:list-boards')
-                    ->get('/{id}', 'getById')->name('getById');
+                    ->get('/{board}', 'getById')->name('getById');
                 Route::middleware('can:delete-boards')
-                    ->delete('/{id}', 'deleteById')->name('deleteById');
+                    ->delete('/{board}', 'deleteById')->name('deleteById');
                 Route::middleware('can:edit-boards')
-                    ->patch('/{id}', 'updateById')->name('updateById');
+                    ->patch('/{board}', 'updateById')->name('updateById');
                 Route::middleware('can:create-boards')
                     ->post('/', 'create')->name('create');
 

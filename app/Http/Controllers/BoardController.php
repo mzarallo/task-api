@@ -12,6 +12,7 @@ use App\Actions\Board\UpdateBoardById;
 use App\Http\Requests\CreateBoardRequest;
 use App\Http\Requests\UpdateBoardRequest;
 use App\Http\Resources\BoardResource;
+use App\Models\Board;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -32,15 +33,11 @@ class BoardController extends Controller
         }
     }
 
-    public function deleteById(int $boardId, DeleteBoardById $deleteBoardById): JsonResponse
+    public function deleteById(Board $board, DeleteBoardById $deleteBoardById): JsonResponse
     {
-        try {
-            $deleteBoardById->run($boardId);
+        $deleteBoardById->run($board->id);
 
-            return response()->json([], 204);
-        } catch (ModelNotFoundException) {
-            return response()->json(['message' => 'Board not found'], 404);
-        }
+        return response()->json([], 204);
     }
 
     public function updateById(int $boardId, UpdateBoardRequest $request, UpdateBoardById $updateBoardById): JsonResponse
