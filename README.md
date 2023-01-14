@@ -14,7 +14,7 @@ API Rest para el manejo de tareas en tableros al estilo Trello de manera más b�
 | Migraciones | ✅ |  |
 | Factories | ✅ |  |
 | Seeders | ✅ |  |
-| Api Autenticación JWT | 🔵 | Falta endpoint para refrescar token |
+| Api Autenticación JWT | ✅ |  |
 | Roles y Permisos | ✅ |  |
 | Api Usuarios | ✅ |  |
 | Api Tableros | ✅ |  |
