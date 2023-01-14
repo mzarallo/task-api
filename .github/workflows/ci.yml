@@ -2,53 +2,23 @@ name: CI
 
 on:
   push:
-    branches:
-      - "main"
-      - "feat/**"
-      - "fix/**"
-      - "seed/**"
-      - "refact/**"
-      - "perf/**"
-      - "dev"
-      - "qa"
     paths:
-      - "app/**"
-      - "tests/**"
       - ".github/**"
-  pull_request:
-    branches:
-      - "main"
-      - "feat/**"
-      - "fix/**"
-      - "seed/**"
-      - "refact/**"
-      - "perf/**"
-      - "dev"
-      - "qa"
-    paths:
       - "app/**"
+      - "config/**"
+      - "database/**"
+      - "resources/**"
+      - "routes/**"
       - "tests/**"
-      - ".github/**"
 jobs:
   laravel-ci:
     name: Laravel PHP 8.1
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:12-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: test
-        ports:
-          - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
     steps:
     - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
       with:
         php-version: '8.1'
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Copy .env
       run: cp .env.ci .env
     - name: Install Dependencies
