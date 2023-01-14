@@ -1,5 +1,5 @@
 <p align="center">
-<a href="https://github.com/zockfoul/task-app-api/actions/workflows/ci.yml"><img src="https://github.com/zockfoul/task-app-api/actions/workflows/ci.yml/badge.svg" alt="Build Status"></img></a>
+<a href="https://github.com/zockfoul/task-app-api/actions/workflows/ci.yml"><img src="https://github.com/zockfoul/task-api/actions/workflows/ci.yml/badge.svg" alt="Build Status"></img></a>
 </p>
 
 
