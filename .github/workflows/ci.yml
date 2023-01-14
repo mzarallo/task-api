@@ -37,6 +37,8 @@ jobs:
       run: php artisan key:generate
     - name: Generate jwt secret key
       run: php artisan jwt:secret
+    - name: Clear config
+      run: php artisan optimize:clear
     - name: Directory Permissions
       run: chmod -R 777 storage bootstrap/cache
     - name: Run migrations and seeders
