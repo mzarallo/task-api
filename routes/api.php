@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Route;
 Route::name('api.')->group(function () {
     Route::prefix('auth')->name('authentication.')->group(function () {
         Route::post('/login', [AuthenticationController::class, 'login'])->name('login');
+        Route::post('/refresh', [AuthenticationController::class, 'refresh'])->name('refresh');
     });
 
     //Routes with authentication required
