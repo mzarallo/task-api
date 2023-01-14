@@ -27,7 +27,7 @@ Route::name('api.')->group(function () {
             Route::post('/login', 'login')->name('login');
             Route::post('/refresh', 'refresh')->name('refresh');
         });
-    
+
     Route::middleware('auth:api')->group(function () {
         Route::prefix('permissions')->name('permissions.')
             ->controller(PermissionController::class)->group(function () {
