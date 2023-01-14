@@ -22,12 +22,12 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::name('api.')->group(function () {
-    Route::prefix('auth')->name('authentication.')->group(function () {
-        Route::post('/login', [AuthenticationController::class, 'login'])->name('login');
-        Route::post('/refresh', [AuthenticationController::class, 'refresh'])->name('refresh');
-    });
-
-    //Routes with authentication required
+    Route::prefix('auth')->name('authentication.')->controller(AuthenticationController::class)
+        ->group(function () {
+            Route::post('/login', 'login')->name('login');
+            Route::post('/refresh', 'refresh')->name('refresh');
+        });
+    
     Route::middleware('auth:api')->group(function () {
         Route::prefix('permissions')->name('permissions.')
             ->controller(PermissionController::class)->group(function () {
