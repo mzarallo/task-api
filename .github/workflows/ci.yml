@@ -14,11 +14,21 @@ jobs:
   laravel-ci:
     name: Build & Test
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test
+        ports:
+          - 5432/tcp
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
     steps:
-    - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
+    - uses: shivammathur/setup-php@v2
       with:
         php-version: '8.1'
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Copy .env
       run: cp .env.ci .env
     - name: Install Dependencies
