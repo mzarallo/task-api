@@ -6,23 +6,23 @@
     "license": "MIT",
     "require": {
         "php": "^8.1",
-        "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
-        "laravel/framework": "^9.0",
+        "laravel/framework": "^10.0",
         "laravel/tinker": "^2.5",
         "lorisleiva/laravel-actions": "^2.2",
         "spatie/laravel-permission": "^5.4",
-        "tymon/jwt-auth": "dev-develop"
+        "tymon/jwt-auth": "^2.0"
     },
     "require-dev": {
         "brianium/paratest": "^6.4",
         "fakerphp/faker": "^1.9.1",
+        "laravel/pint": "^1.10",
         "laravel/sail": "^1.13",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^6.1",
         "nunomaduro/phpinsights": "^2.0",
         "phpunit/phpunit": "^9.5.10",
-        "spatie/laravel-ignition": "^1.0"
+        "spatie/laravel-ignition": "^2.0"
     },
     "autoload": {
         "psr-4": {
@@ -61,7 +61,9 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "pestphp/pest-plugin": true,
+            "php-http/discovery": true
         }
     },
     "minimum-stability": "dev",
