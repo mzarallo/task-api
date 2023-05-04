@@ -27,6 +27,7 @@ class UserTest extends TestCase
     public function user_can_get_all_users(): void
     {
         $this->seed(PermissionSeeder::class);
+        User::factory()->count(2)->create();
 
         $response = $this
             ->actingAs(User::factory()->create()->givePermissionTo('list-users'))
@@ -35,7 +36,7 @@ class UserTest extends TestCase
         $response->assertJson(
             fn (AssertableJson $json) => $json->has(
                 'data',
-                1,
+                3,
                 fn (AssertableJson $json) => $json->hasAll('id', 'name', 'last_name', 'abbreviation', 'img_profile', 'email')
                     ->whereAllType([
                         'id' => 'integer',

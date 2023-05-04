@@ -20,10 +20,10 @@ class UserController extends Controller
 {
     public function all(GetAllUsers $getAllUsers): AnonymousResourceCollection
     {
-        return UserResource::collection($getAllUsers->run());
+        return UserResource::collection($getAllUsers->handle(sortFields: ['last_name']));
     }
 
-    public function getById(int $userId, GetUserById $getUserById): UserResource | JsonResponse
+    public function getById(int $userId, GetUserById $getUserById): UserResource|JsonResponse
     {
         try {
             return new UserResource($getUserById->run($userId));
