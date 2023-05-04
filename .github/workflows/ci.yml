@@ -36,7 +36,7 @@ jobs:
     - name: Generate key
       run: php artisan key:generate
     - name: Generate jwt secret key
-      run: php artisan jwt:secret
+      run: php artisan jwt:secret --force
     - name: Clear config
       run: php artisan optimize:clear
     - name: Directory Permissions
