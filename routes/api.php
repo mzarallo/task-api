@@ -7,7 +7,7 @@ use App\Http\Controllers\BoardController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StageController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -39,7 +39,7 @@ Route::name('api.')->group(function () {
         });
 
         Route::prefix('users')->name('users.')
-            ->controller(UserController::class)->group(function () {
+            ->controller(UsersController::class)->group(function () {
                 Route::middleware('can:list-users')->get('/', 'all')->name('all');
                 Route::middleware('can:list-users')
                     ->get('/{user}', 'getById')->name('getById');
