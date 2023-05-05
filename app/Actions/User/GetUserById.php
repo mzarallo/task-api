@@ -4,15 +4,21 @@ declare(strict_types=1);
 
 namespace App\Actions\User;
 
-use App\Models\User;
+use App\Repositories\Contracts\UsersRepositoryContract;
+use Illuminate\Database\Eloquent\Model;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetUserById
 {
     use AsAction;
 
-    public function handle(int $userId): User
+    public function __construct(private readonly UsersRepositoryContract $repository)
     {
-        return User::findOrFail($userId);
+
+    }
+
+    public function handle(int $userId): Model
+    {
+        return $this->repository->find($userId);
     }
 }

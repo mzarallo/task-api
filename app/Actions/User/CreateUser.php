@@ -7,28 +7,41 @@ namespace App\Actions\User;
 use App\Actions\Role\AttachRoleToUser;
 use App\Events\UserCreated;
 use App\Models\User;
+use App\Repositories\UsersRepository;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class CreateUser
+final class CreateUser
 {
     use AsAction;
 
-    public function __construct(private AttachRoleToUser $attachRoleToUser)
-    {
+    public function __construct(
+        private readonly AttachRoleToUser $attachRoleToUser,
+        private readonly UsersRepository $repository,
+    ) {
     }
 
-    public function handle(array $fields): User
+    public function handle(array $attributes): User
     {
-        return DB::transaction(fn () => $this->attachRoleToUser->run($this->createUser($fields), $fields['role']));
+        return DB::transaction(function () use ($attributes) {
+            return $this->attachRoleToUser->handle(
+                $this->createUser($attributes)->id,
+                $attributes['role']
+            );
+        });
     }
 
-    private function createUser(array $fields): User
+    private function createUser(array $attributes): Model
     {
-        $fields['password'] = $this->generatePassword();
-        $user = User::create($fields);
-        $this->dispatchEvent($user, $fields['password']);
+        $password = $this->generatePassword();
+        $user = $this->repository->create([
+            ...$attributes,
+            'password' => $password,
+        ]);
+
+        $this->dispatchEvent($user, $password);
 
         return $user;
     }

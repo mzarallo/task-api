@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Repositories;
 
 use App\Models\User;
-use App\Repositories\Contracts\UserRepositoryContract;
+use App\Repositories\Contracts\UsersRepositoryContract;
 use App\Repositories\Traits\Sortable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
-final class UserRepository implements UserRepositoryContract
+final class UsersRepository implements UsersRepositoryContract
 {
     use Sortable;
 
@@ -40,7 +40,7 @@ final class UserRepository implements UserRepositoryContract
 
     public function update(int $id, array $attributes): Model
     {
-        return tap($this->model)->update($attributes);
+        return tap($this->model->find($id))->update($attributes);
     }
 
     public function delete(int $id): bool
@@ -51,5 +51,10 @@ final class UserRepository implements UserRepositoryContract
     public function find(int $id): Model
     {
         return $this->model->findOrFail($id);
+    }
+
+    public function assignRoleToUser(string $role, int $userId): User
+    {
+        return $this->find($userId)->assignRole($role);
     }
 }

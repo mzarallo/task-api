@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Actions\User;
+namespace App\Actions\User\Notifications\Mails;
 
 use App\Mail\CredentialsUserMail;
 use App\Models\User;

@@ -5,14 +5,20 @@ declare(strict_types=1);
 namespace App\Actions\Role;
 
 use App\Models\User;
+use App\Repositories\UsersRepository;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class AttachRoleToUser
 {
     use AsAction;
 
-    public function handle(User $user, string $role): User
+    public function __construct(private readonly UsersRepository $repository)
     {
-        return $user->assignRole($role);
+
+    }
+
+    public function handle(int $userId, string $role): User
+    {
+        return $this->repository->assignRoleToUser($role, $userId);
     }
 }

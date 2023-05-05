@@ -4,15 +4,20 @@ declare(strict_types=1);
 
 namespace App\Actions\User;
 
-use App\Models\User;
+use App\Repositories\Contracts\UsersRepositoryContract;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class DeleteUserById
 {
     use AsAction;
 
+    public function __construct(private readonly UsersRepositoryContract $repository)
+    {
+
+    }
+
     public function handle(int $userId): bool
     {
-        return User::findOrFail($userId)->delete();
+        return $this->repository->delete($userId);
     }
 }
