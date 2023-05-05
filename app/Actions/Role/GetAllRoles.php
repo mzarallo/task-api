@@ -4,16 +4,21 @@ declare(strict_types=1);
 
 namespace App\Actions\Role;
 
+use App\Repositories\Contracts\RolesRepositoryContract;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
-use Spatie\Permission\Models\Role;
 
 class GetAllRoles
 {
     use AsAction;
 
+    public function __construct(private readonly RolesRepositoryContract $repository)
+    {
+
+    }
+
     public function handle(): Collection
     {
-        return Role::orderBy('name')->get();
+        return $this->repository->all(sortFields: ['name']);
     }
 }
