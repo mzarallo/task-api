@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\AuthenticationController;
-use App\Http\Controllers\BoardController;
-use App\Http\Controllers\PermissionController;
-use App\Http\Controllers\RoleController;
-use App\Http\Controllers\StageController;
+use App\Http\Controllers\BoardsController;
+use App\Http\Controllers\PermissionsController;
+use App\Http\Controllers\RolesController;
+use App\Http\Controllers\StagesController;
 use App\Http\Controllers\TasksController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
@@ -31,11 +31,11 @@ Route::name('api.')->group(function () {
 
     Route::middleware('auth:api')->group(function () {
         Route::prefix('permissions')->name('permissions.')
-            ->controller(PermissionController::class)->group(function () {
+            ->controller(PermissionsController::class)->group(function () {
                 Route::middleware('can:list-permissions')->get('/', 'all')->name('all');
             });
 
-        Route::name('roles.')->controller(RoleController::class)->group(function () {
+        Route::name('roles.')->controller(RolesController::class)->group(function () {
             Route::middleware('can:list-roles')->get('/', 'all')->name('all');
         });
 
@@ -53,7 +53,7 @@ Route::name('api.')->group(function () {
             });
 
         Route::prefix('boards')->name('boards.')
-            ->controller(BoardController::class)->group(function () {
+            ->controller(BoardsController::class)->group(function () {
                 Route::middleware('can:list-boards')
                     ->get('/', 'all')->name('all');
                 Route::middleware('can:list-boards')
@@ -65,7 +65,7 @@ Route::name('api.')->group(function () {
                 Route::middleware('can:create-boards')
                     ->post('/', 'create')->name('create');
 
-                Route::name('stages.')->controller(StageController::class)->group(function () {
+                Route::name('stages.')->controller(StagesController::class)->group(function () {
                     Route::middleware('can:list-stages')
                         ->get('/{board}/stages', 'all')->name('all');
                     Route::middleware('can:list-stages')

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Listeners;
 
-use App\Actions\User\Notifications\Mails\SendCredentialsEmailToUser;
+use App\Actions\Users\Notifications\Mails\SendCredentialsEmailToUser;
 use App\Events\UserCreated;
 use Illuminate\Contracts\Queue\ShouldQueue;
 

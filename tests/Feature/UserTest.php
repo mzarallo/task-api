@@ -191,6 +191,21 @@ class UserTest extends TestCase
         )->assertOk();
     }
 
+    private function getAttributes(): Collection
+    {
+        $name = $this->faker->name();
+        $lastName = $this->faker->name();
+
+        return Collection::make([
+            'name' => $name,
+            'last_name' => $lastName,
+            'profile_img_url' => $this->faker->url(),
+            'email' => $this->faker->email(),
+            'role' => Role::all()->random()->name,
+            'abbreviation' => Str::upper(Str::substr($name, 0, 1).Str::substr($lastName, 0, 1)),
+        ]);
+    }
+
     /**
      * @test
      */
@@ -265,20 +280,5 @@ class UserTest extends TestCase
                 ->has('message')
                 ->etc()
         )->assertUnprocessable();
-    }
-
-    private function getAttributes(): Collection
-    {
-        $name = $this->faker->name();
-        $lastName = $this->faker->name();
-
-        return Collection::make([
-            'name' => $name,
-            'last_name' => $lastName,
-            'profile_img_url' => $this->faker->url(),
-            'email' => $this->faker->email(),
-            'role' => Role::all()->random()->name,
-            'abbreviation' => Str::upper(Str::substr($name, 0, 1).Str::substr($lastName, 0, 1)),
-        ]);
     }
 }

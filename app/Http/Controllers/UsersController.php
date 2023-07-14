@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Actions\User\CreateUser;
-use App\Actions\User\DeleteUserById;
-use App\Actions\User\GetAllUsers;
-use App\Actions\User\GetUserById;
-use App\Actions\User\UpdateUserById;
+use App\Actions\Users\CreateUser;
+use App\Actions\Users\DeleteUserById;
+use App\Actions\Users\GetAllUsers;
+use App\Actions\Users\GetUserById;
+use App\Actions\Users\UpdateUserById;
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
