@@ -10,9 +10,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 
 class UserCreatedNotification implements ShouldQueue
 {
-    public $queue = 'listeners';
+    public string $queue = 'listeners';
 
-    public function __construct(private SendCredentialsEmailToUser $emailWithCredentialToUser)
+    public function __construct(private readonly SendCredentialsEmailToUser $emailWithCredentialToUser)
     {
     }
 

@@ -12,8 +12,6 @@ class TaskFactory extends Factory
 {
     /**
      * Define the model's default state.
-     *
-     * @return array
      */
     public function definition(): array
     {
@@ -22,7 +20,8 @@ class TaskFactory extends Factory
             'description' => $this->faker->realText(350),
             'author_id' => User::factory()->create()->id,
             'stage_id' => Stage::factory()->create()->id,
-            'tags' => \json_encode(['UI', 'DEV', 'QA']),
+            'order' => $this->faker->randomNumber(2),
+            'tags' => ['UI', 'DEV', 'QA'],
         ];
     }
 }

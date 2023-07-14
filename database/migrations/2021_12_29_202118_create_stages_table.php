@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,7 +20,7 @@ class CreateStagesTable extends Migration
             $table->string('name')->nullable(false);
             $table->string('slug')->nullable(false);
             $table->string('hex_color')->nullable(false);
-            $table->tinyInteger('order')->nullable(false);
+            $table->bigInteger('order')->nullable(false);
             $table->boolean('is_final_stage')->nullable(false);
             $table->unsignedBigInteger('board_id')->nullable(false);
             $table->unsignedBigInteger('author_id')->nullable(false);

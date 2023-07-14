@@ -7,6 +7,7 @@ use App\Http\Controllers\BoardController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StageController;
+use App\Http\Controllers\TasksController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
 
@@ -78,6 +79,10 @@ Route::name('api.')->group(function () {
                     Route::middleware('can:create-stages')
                         ->post('/{board}/stages', 'create')->name('create');
                 });
+            });
+        Route::prefix('boards/{board}/stages/{stage}/tasks')->name('boards.stages.tasks.')
+            ->controller(TasksController::class)->group(function () {
+                Route::get('/', 'all')->name('all')->can('list-tasks')->scopeBindings();
             });
     });
 });

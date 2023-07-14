@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 class Stage extends Model
@@ -21,17 +22,17 @@ class Stage extends Model
         'is_final_stage',
         'order',
         'board_id',
-        'author_id'
+        'author_id',
     ];
 
     protected static function boot()
     {
         parent::boot();
 
-        static::creating( function ($model) {
+        static::creating(function ($model) {
             $model->slug = Str::slug($model->name);
         });
-        static::updating( function ($model) {
+        static::updating(function ($model) {
             $model->slug = Str::slug($model->name);
         });
     }
@@ -44,6 +45,11 @@ class Stage extends Model
     public function board(): BelongsTo
     {
         return $this->belongsTo(Board::class);
+    }
+
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Stage::class);
     }
 
     public function AuthorFullName(): Attribute
