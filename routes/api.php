@@ -30,15 +30,19 @@ Route::name('api.')->group(function () {
         });
 
     Route::middleware('auth:api')->group(function () {
+        //Permission routes
         Route::prefix('permissions')->name('permissions.')
             ->controller(PermissionsController::class)->group(function () {
-                Route::middleware('can:list-permissions')->get('/', 'all')->name('all');
+                Route::get('/', 'all')->name('all')->middleware('can:list-permissions');
             });
 
-        Route::name('roles.')->controller(RolesController::class)->group(function () {
-            Route::middleware('can:list-roles')->get('/', 'all')->name('all');
-        });
+        //Role routes
+        Route::prefix('roles')->name('roles.')
+            ->controller(RolesController::class)->group(function () {
+                Route::get('/', 'all')->name('all')->middleware('can:list-roles');
+            });
 
+        //User routes
         Route::prefix('users')->name('users.')
             ->controller(UsersController::class)->group(function () {
                 Route::middleware('can:list-users')->get('/', 'all')->name('all');
@@ -52,6 +56,7 @@ Route::name('api.')->group(function () {
                     ->post('/', 'create')->name('create');
             });
 
+        //Board routes
         Route::prefix('boards')->name('boards.')
             ->controller(BoardsController::class)->group(function () {
                 Route::middleware('can:list-boards')
@@ -64,23 +69,26 @@ Route::name('api.')->group(function () {
                     ->patch('/{board}', 'updateById')->name('updateById');
                 Route::middleware('can:create-boards')
                     ->post('/', 'create')->name('create');
-
-                Route::name('stages.')->controller(StagesController::class)->group(function () {
-                    Route::middleware('can:list-stages')
-                        ->get('/{board}/stages', 'all')->name('all');
-                    Route::middleware('can:list-stages')
-                        ->get('/{board}/stages/{stage}', 'getById')->name('getById');
-                    Route::middleware('can:delete-stages')
-                        ->delete('/{board}/stages/{stage}', 'deleteById')->name('deleteById');
-                    Route::middleware('can:edit-stages')
-                        ->patch('/{board}/stages/{stage}', 'updateById')->name('updateById');
-                    Route::middleware('can:edit-stages')
-                        ->patch('/{board}/stages/{stage}', 'updateById')->name('updateById');
-                    Route::middleware('can:create-stages')
-                        ->post('/{board}/stages', 'create')->name('create');
-                });
             });
 
+        //Stage routes
+        Route::prefix('boards/{board}/stages')->name('boards.stages.')
+            ->controller(StagesController::class)->group(function () {
+                Route::middleware('can:list-stages')
+                    ->get('/', 'all')->name('all')->scopeBindings();
+                Route::middleware('can:list-stages')
+                    ->get('/{stage}', 'getById')->name('getById')->scopeBindings();
+                Route::middleware('can:delete-stages')
+                    ->delete('/{stage}', 'deleteById')->name('deleteById')->scopeBindings();
+                Route::middleware('can:edit-stages')
+                    ->patch('/{stage}', 'updateById')->name('updateById')->scopeBindings();
+                Route::middleware('can:edit-stages')
+                    ->patch('/{stage}', 'updateById')->name('updateById')->scopeBindings();
+                Route::middleware('can:create-stages')
+                    ->post('/', 'create')->name('create')->scopeBindings();
+            });
+
+        //Task routes
         Route::prefix('boards/{board}/stages/{stage}/tasks')->name('boards.stages.tasks.')
             ->controller(TasksController::class)->group(function () {
                 Route::get('/', 'all')->name('all')->can('list-tasks')->scopeBindings();
