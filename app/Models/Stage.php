@@ -49,7 +49,7 @@ class Stage extends Model
 
     public function tasks(): HasMany
     {
-        return $this->hasMany(Stage::class);
+        return $this->hasMany(Task::class);
     }
 
     public function AuthorFullName(): Attribute

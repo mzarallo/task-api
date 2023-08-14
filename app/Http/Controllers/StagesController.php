@@ -13,37 +13,28 @@ use App\Http\Requests\CreateStageRequest;
 use App\Http\Resources\StageResource;
 use App\Models\Board;
 use App\Models\Stage;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class StagesController extends Controller
 {
-    public function getById(int $boardId, int $stageId, GetStageById $getStageById): StageResource|JsonResponse
+    public function getById(Board $board, Stage $stage, GetStageById $getStageById): StageResource|JsonResponse
     {
-        try {
-            return new StageResource(
-                $getStageById->run(
-                    stageId: $stageId,
-                    whereClause: ['board_id' => $boardId],
-                    relations: ['author']
-                )
-            );
-        } catch (ModelNotFoundException) {
-            return response()->json(['message' => 'Stage not found'], 404);
-        }
+        return new StageResource(
+            $getStageById->handle(
+                stageId: $stage->id,
+                whereClause: ['board_id' => $board->id],
+                relations: ['author']
+            )
+        );
     }
 
-    public function deleteById(int $boardId, int $stageId, DeleteStageById $deleteStageById): JsonResponse
+    public function deleteById(Board $board, Stage $stage, DeleteStageById $deleteStageById): JsonResponse
     {
-        try {
-            $deleteStageById->run(stageId: $stageId, whereClause: ['board_id' => $boardId]);
+        $deleteStageById->handle(stageId: $stage->id, whereClause: ['board_id' => $board->id]);
 
-            return response()->json([], 204);
-        } catch (ModelNotFoundException) {
-            return response()->json(['message' => 'Stage not found'], 404);
-        }
+        return response()->json([], 204);
     }
 
     public function updateById(Request $request, Board $board, Stage $stage, UpdateStageById $updateStageById): JsonResponse

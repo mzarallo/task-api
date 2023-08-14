@@ -170,4 +170,36 @@ class TaskTest extends TestCase
 
         $response->assertForbidden();
     }
+
+    /** @test */
+    public function user_can_delete_task_by_id(): void
+    {
+        $this->withoutExceptionHandling();
+        $this->seed(PermissionSeeder::class);
+        $task = Task::factory()->create();
+
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('delete-tasks'))
+            ->deleteJson(
+                route('api.boards.stages.tasks.deleteById', [$task->stage->board, $task->stage, $task])
+            );
+
+        $response->assertNoContent();
+        $this->assertDatabaseMissing('tasks', ['id' => $task->id]);
+    }
+
+    /**
+     * @test
+     */
+    public function user_cannot_delete_tasks_by_id_without_permissions(): void
+    {
+        $this->actingAs(User::factory()->create());
+        $task = Task::factory()->create();
+
+        $response = $this->deleteJson(
+            route('api.boards.stages.tasks.deleteById', [$task->stage->board, $task->stage, $task])
+        );
+
+        $response->assertForbidden();
+    }
 }

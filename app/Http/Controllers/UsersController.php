@@ -12,7 +12,7 @@ use App\Actions\Users\UpdateUserById;
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
@@ -23,35 +23,23 @@ class UsersController extends Controller
         return UserResource::collection($getAllUsers->handle(sortFields: ['last_name']));
     }
 
-    public function getById(int $userId, GetUserById $getUserById): UserResource|JsonResponse
+    public function getById(User $user, GetUserById $getUserById): UserResource|JsonResponse
     {
-        try {
-            return new UserResource($getUserById->run($userId));
-        } catch (ModelNotFoundException) {
-            return response()->json(['message' => 'User not found'], 404);
-        }
+        return new UserResource($getUserById->handle($user->id));
     }
 
-    public function deleteById(int $userId, DeleteUserById $deleteUserById): JsonResponse
+    public function deleteById(User $user, DeleteUserById $deleteUserById): JsonResponse
     {
-        try {
-            $deleteUserById->run($userId);
+        $deleteUserById->handle($user->id);
 
-            return response()->json([], 204);
-        } catch (ModelNotFoundException) {
-            return response()->json(['message' => 'User not found'], 404);
-        }
+        return response()->json([], 204);
     }
 
-    public function updateById(int $userId, UpdateUserRequest $request, UpdateUserById $updateUserById): JsonResponse
+    public function updateById(User $user, UpdateUserRequest $request, UpdateUserById $updateUserById): JsonResponse
     {
-        try {
-            $userResource = new UserResource($updateUserById->run($userId, $request->validated()));
+        $userResource = new UserResource($updateUserById->handle($user->id, $request->validated()));
 
-            return response()->json($userResource);
-        } catch (ModelNotFoundException) {
-            return response()->json(['message' => 'User not found'], 404);
-        }
+        return response()->json($userResource);
     }
 
     public function create(CreateUserRequest $request, CreateUser $createUser): JsonResponse

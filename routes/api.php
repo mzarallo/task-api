@@ -23,8 +23,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::name('api.')->group(function () {
-    Route::prefix('auth')->name('authentication.')->controller(AuthenticationController::class)
-        ->group(function () {
+    Route::prefix('auth')->name('authentication.')
+        ->controller(AuthenticationController::class)->group(function () {
             Route::post('/login', 'login')->name('login');
             Route::post('/refresh', 'refresh')->name('refresh');
         });
@@ -33,66 +33,73 @@ Route::name('api.')->group(function () {
         //Permission routes
         Route::prefix('permissions')->name('permissions.')
             ->controller(PermissionsController::class)->group(function () {
-                Route::get('/', 'all')->name('all')->middleware('can:list-permissions');
+                Route::get('/', 'all')->name('all')
+                    ->can('list-permissions');
             });
 
         //Role routes
         Route::prefix('roles')->name('roles.')
             ->controller(RolesController::class)->group(function () {
-                Route::get('/', 'all')->name('all')->middleware('can:list-roles');
+                Route::get('/', 'all')->name('all')
+                    ->can('list-roles');
             });
 
         //User routes
         Route::prefix('users')->name('users.')
             ->controller(UsersController::class)->group(function () {
-                Route::middleware('can:list-users')->get('/', 'all')->name('all');
-                Route::middleware('can:list-users')
-                    ->get('/{user}', 'getById')->name('getById');
-                Route::middleware('can:delete-users')
-                    ->delete('/{user}', 'deleteById')->name('deleteById');
-                Route::middleware('can:edit-users')
-                    ->patch('/{user}', 'updateById')->name('updateById');
-                Route::middleware('can:create-users')
-                    ->post('/', 'create')->name('create');
+                Route::get('/', 'all')->name('all')
+                    ->can('list-users');
+                Route::get('/{user}', 'getById')->name('getById')
+                    ->can('list-users')->scopeBindings();
+                Route::delete('/{user}', 'deleteById')->name('deleteById')
+                    ->can('delete-users')->scopeBindings();
+                Route::patch('/{user}', 'updateById')->name('updateById')
+                    ->can('edit-users')->scopeBindings();
+                Route::post('/', 'create')->name('create')
+                    ->can('create-users')->scopeBindings();
             });
 
         //Board routes
         Route::prefix('boards')->name('boards.')
             ->controller(BoardsController::class)->group(function () {
-                Route::middleware('can:list-boards')
-                    ->get('/', 'all')->name('all');
-                Route::middleware('can:list-boards')
-                    ->get('/{board}', 'getById')->name('getById');
-                Route::middleware('can:delete-boards')
-                    ->delete('/{board}', 'deleteById')->name('deleteById');
-                Route::middleware('can:edit-boards')
-                    ->patch('/{board}', 'updateById')->name('updateById');
-                Route::middleware('can:create-boards')
-                    ->post('/', 'create')->name('create');
+                Route::get('/', 'all')->name('all')
+                    ->can('list-boards')->scopeBindings();
+                Route::get('/{board}', 'getById')->name('getById')
+                    ->can('list-boards')->scopeBindings();
+                Route::delete('/{board}', 'deleteById')->name('deleteById')
+                    ->can('delete-boards')->scopeBindings();
+                Route::patch('/{board}', 'updateById')->name('updateById')
+                    ->can('edit-boards')->scopeBindings();
+                Route::post('/', 'create')->name('create')
+                    ->can('create-boards')->scopeBindings();
             });
 
         //Stage routes
         Route::prefix('boards/{board}/stages')->name('boards.stages.')
             ->controller(StagesController::class)->group(function () {
-                Route::middleware('can:list-stages')
-                    ->get('/', 'all')->name('all')->scopeBindings();
-                Route::middleware('can:list-stages')
-                    ->get('/{stage}', 'getById')->name('getById')->scopeBindings();
-                Route::middleware('can:delete-stages')
-                    ->delete('/{stage}', 'deleteById')->name('deleteById')->scopeBindings();
-                Route::middleware('can:edit-stages')
-                    ->patch('/{stage}', 'updateById')->name('updateById')->scopeBindings();
-                Route::middleware('can:edit-stages')
-                    ->patch('/{stage}', 'updateById')->name('updateById')->scopeBindings();
-                Route::middleware('can:create-stages')
-                    ->post('/', 'create')->name('create')->scopeBindings();
+                Route::get('/', 'all')->name('all')
+                    ->can('list-stages')->scopeBindings();
+                Route::get('/{stage}', 'getById')->name('getById')
+                    ->can('list-stages')->scopeBindings();
+                Route::delete('/{stage}', 'deleteById')->name('deleteById')
+                    ->can('delete-stages')->scopeBindings();
+                Route::patch('/{stage}', 'updateById')->name('updateById')
+                    ->can('edit-stages')->scopeBindings();
+                Route::patch('/{stage}', 'updateById')->name('updateById')
+                    ->can('edit-stages')->scopeBindings();
+                Route::post('/', 'create')->name('create')
+                    ->can('create-stages')->scopeBindings();
             });
 
         //Task routes
         Route::prefix('boards/{board}/stages/{stage}/tasks')->name('boards.stages.tasks.')
             ->controller(TasksController::class)->group(function () {
-                Route::get('/', 'all')->name('all')->can('list-tasks')->scopeBindings();
-                Route::post('/', 'create')->name('create')->can('create-tasks')->scopeBindings();
+                Route::get('/', 'all')->name('all')
+                    ->can('list-tasks')->scopeBindings();
+                Route::post('/', 'create')->name('create')
+                    ->can('create-tasks')->scopeBindings();
+                Route::delete('/{task}', 'deleteById')->name('deleteById')
+                    ->can('delete-tasks')->scopeBindings();
             });
     });
 });

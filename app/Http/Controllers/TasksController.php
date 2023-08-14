@@ -5,13 +5,17 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Actions\Tasks\CreateTaskService;
+use App\Actions\Tasks\DeleteTaskById;
 use App\Actions\Tasks\GetAllTasksService;
 use App\Data\Services\Tasks\CreateTaskServiceDto;
+use App\Data\Services\Tasks\DeleteTaskServiceDto;
 use App\Data\Services\Tasks\GetAllTaskServiceDto;
 use App\Http\Requests\Tasks\CreateTaskRequest;
 use App\Http\Resources\TaskResource;
 use App\Models\Board;
 use App\Models\Stage;
+use App\Models\Task;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class TasksController extends Controller
@@ -36,5 +40,12 @@ class TasksController extends Controller
                 ])
             )
         );
+    }
+
+    public function deleteById(Board $board, Stage $stage, Task $task, DeleteTaskById $deleteTask): JsonResponse
+    {
+        $deleteTask->handle(DeleteTaskServiceDto::from(['taskId' => $task->id]));
+
+        return response()->json([], 204);
     }
 }
