@@ -25,7 +25,7 @@ class Stage extends Model
         'author_id',
     ];
 
-    protected static function boot()
+    protected static function boot(): void
     {
         parent::boot();
 

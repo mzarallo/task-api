@@ -80,9 +80,11 @@ Route::name('api.')->group(function () {
                         ->post('/{board}/stages', 'create')->name('create');
                 });
             });
+
         Route::prefix('boards/{board}/stages/{stage}/tasks')->name('boards.stages.tasks.')
             ->controller(TasksController::class)->group(function () {
                 Route::get('/', 'all')->name('all')->can('list-tasks')->scopeBindings();
+                Route::post('/', 'create')->name('create')->can('create-tasks')->scopeBindings();
             });
     });
 });

@@ -12,9 +12,28 @@ class Task extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'title',
+        'description',
+        'start_date',
+        'end_date',
+        'tags',
+        'order',
+        'stage_id',
+    ];
+
     protected $casts = [
         'tags' => 'array',
     ];
+
+    protected static function booted()
+    {
+        static::creating(function (Task $model) {
+            if (! $model->author_id) {
+                $model->author_id = auth()->user()->id ?? null;
+            }
+        });
+    }
 
     public function stage(): BelongsTo
     {

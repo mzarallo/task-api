@@ -19,7 +19,7 @@ API Rest para el manejo de tareas en tableros al estilo Trello de manera más b�
 | Api Usuarios | ✅ |  |
 | Api Tableros | ✅ |  |
 | Api Etapas | ✅ |  |
-| Api Tareas | 🟡 |  |
+| Api Tareas | 🏗️ |  |
 | Api Comentarios | 🟡 |  |
 | Cache | 🟡 |  |
 | Event/Listeners | 🟡 |  |

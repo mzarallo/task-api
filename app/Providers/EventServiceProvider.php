@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Events\UserCreated;
-use App\Listeners\UserCreatedNotification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -29,6 +27,8 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Event::listen(UserCreated::class, [UserCreatedNotification::class, 'handle']);
+        foreach (config('listeners') as $event => $listeners) {
+            Event::listen($event, $listeners);
+        }
     }
 }

@@ -11,6 +11,7 @@ use App\Models\User;
 use Database\Seeders\PermissionSeeder;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Collection;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\TestCase;
 
@@ -89,5 +90,84 @@ class TaskTest extends TestCase
             ->getJson(route('api.boards.stages.tasks.all', [$board2, $board->stages->first()]));
 
         $response->assertNotFound();
+    }
+
+    public function user_gets_404_error_when_he_wants_to_get_a_board_that_does_not_exist(): void
+    {
+    }
+
+    /** @test  */
+    public function user_can_create_task(): void
+    {
+        $this->seed(PermissionSeeder::class);
+        $stage = Stage::factory()->create();
+        $attributes = $this->getAttributes();
+
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('create-tasks'))
+            ->postJson(route('api.boards.stages.tasks.create', [$stage->board, $stage]), $attributes->toArray());
+
+        $response->assertJson(
+            fn (AssertableJson $json) => $json
+                ->has('data', fn (AssertableJson $json) => $json
+                    ->where('title', $attributes->get('title'))
+                    ->where('description', $attributes->get('description'))
+                    ->where('start_date', $attributes->get('start_date'))
+                    ->where('end_date', $attributes->get('end_date'))
+                    ->where('tags', $attributes->get('tags'))
+                    ->where('order', $attributes->get('order'))
+                    ->etc()
+                )
+        )->assertCreated();
+
+    }
+
+    private function getAttributes(): Collection
+    {
+        return Collection::make([
+            'title' => $this->faker->sentence,
+            'description' => $this->faker->realText,
+            'start_date' => now()->toDateString(),
+            'end_date' => now()->addWeek()->toDateString(),
+            'tags' => [$this->faker->word, $this->faker->word],
+            'order' => $this->faker->randomNumber(),
+        ]);
+    }
+
+    /** @test */
+    public function cannot_create_task_with_incorrect_data(): void
+    {
+        $this->seed(PermissionSeeder::class);
+        $stage = Stage::factory()->create();
+
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('create-tasks'))
+            ->postJson(route('api.boards.stages.tasks.create', [$stage->board, $stage]));
+
+        $response->assertJson(
+            fn (AssertableJson $json) => $json->has('message')
+                ->has('errors')
+                ->has('message')
+                ->whereType('errors', 'array')
+                ->whereType('message', 'string')
+                ->has('errors', fn (AssertableJson $json) => $json->hasAll([
+                    'title',
+                    'start_date',
+                ]))->etc()
+        )->assertUnprocessable();
+    }
+
+    /** @test  */
+    public function user_cannot_create_task_without_permissions(): void
+    {
+        $this->seed(PermissionSeeder::class);
+        $stage = Stage::factory()->create();
+        $attributes = $this->getAttributes();
+
+        $response = $this
+            ->actingAs(User::factory()->create())
+            ->postJson(route('api.boards.stages.tasks.create', [$stage->board, $stage]), $attributes->toArray());
+
+        $response->assertForbidden();
     }
 }
