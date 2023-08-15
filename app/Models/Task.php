@@ -26,7 +26,7 @@ class Task extends Model
         'tags' => 'array',
     ];
 
-    protected static function booted()
+    protected static function booted(): void
     {
         static::creating(function (Task $model) {
             if (! $model->author_id) {

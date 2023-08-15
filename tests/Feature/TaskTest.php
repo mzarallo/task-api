@@ -202,4 +202,44 @@ class TaskTest extends TestCase
 
         $response->assertForbidden();
     }
+
+    /**
+     * @test
+     */
+    public function user_can_update_tasks(): void
+    {
+        $this->seed(PermissionSeeder::class);
+        $task = Task::factory()
+            ->state(['start_date' => now()->subWeeks(2), 'end_date' => now()->subWeek()])
+            ->create();
+        $attributes = $this->getAttributes()->only(['title', 'description', 'start_date', 'end_date']);
+
+        $response = $this
+            ->actingAs(User::factory()->create()->givePermissionTo('edit-tasks'))
+            ->patchJson(
+                route('api.boards.stages.tasks.updateById', [$task->stage->board, $task->stage, $task]),
+                $attributes->toArray()
+            );
+
+        $response->assertJson(
+            fn (AssertableJson $json) => $json->where('title', $attributes->get('title'))
+                ->where('description', $attributes->get('description'))
+                ->where('start_date', $attributes->get('start_date'))
+                ->where('end_date', $attributes->get('end_date'))
+                ->etc()
+        )->assertOk();
+    }
+
+    /**
+     * @test
+     */
+    public function user_cannot_update_tasks_without_permissions(): void
+    {
+        $this->actingAs(User::factory()->create());
+        $task = Task::factory()->create();
+
+        $response = $this->patchJson(route('api.boards.stages.tasks.updateById', [$task->stage->board, $task->stage, $task]));
+
+        $response->assertForbidden();
+    }
 }

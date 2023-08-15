@@ -13,6 +13,6 @@ class DeleteBoardById
 
     public function handle(int $boardId): bool
     {
-        return Board::findOrFail($boardId)->delete();
+        return Board::query()->findOrFail($boardId)->delete();
     }
 }

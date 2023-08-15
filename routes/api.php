@@ -100,6 +100,8 @@ Route::name('api.')->group(function () {
                     ->can('create-tasks')->scopeBindings();
                 Route::delete('/{task}', 'deleteById')->name('deleteById')
                     ->can('delete-tasks')->scopeBindings();
+                Route::patch('/{task}', 'updateById')->name('updateById')
+                    ->can('edit-tasks')->scopeBindings();
             });
     });
 });
