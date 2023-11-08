@@ -7,7 +7,7 @@ namespace App\Policies;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
-class BoardPolicy
+class UserPolicy
 {
     /**
      * Create a new policy instance.
@@ -17,10 +17,10 @@ class BoardPolicy
         //
     }
 
-    public function before(User $user): ?Response
+    public function before(User $user): ?bool
     {
         if ($user->hasRole('Administrator')) {
-            return Response::allow();
+            return true;
         }
 
         return null;
@@ -28,26 +28,26 @@ class BoardPolicy
 
     public function viewAny(User $user): Response
     {
-        return $user->can('list-boards') ? Response::allow() : Response::deny();
+        return $user->can('list-users') ? Response::allow() : Response::deny();
     }
 
     public function view(User $user): Response
     {
-        return $user->can('list-boards') ? Response::allow() : Response::deny();
+        return $user->can('list-users') ? Response::allow() : Response::deny();
     }
 
     public function delete(User $user): Response
     {
-        return $user->can('delete-boards') ? Response::allow() : Response::deny();
+        return $user->can('delete-users') ? Response::allow() : Response::deny();
     }
 
     public function edit(User $user): Response
     {
-        return $user->can('edit-boards') ? Response::allow() : Response::deny();
+        return $user->can('edit-users') ? Response::allow() : Response::deny();
     }
 
     public function create(User $user): Response
     {
-        return $user->can('create-boards') ? Response::allow() : Response::deny();
+        return $user->can('create-users') ? Response::allow() : Response::deny();
     }
 }

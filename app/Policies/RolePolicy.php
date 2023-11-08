@@ -17,6 +17,15 @@ class RolePolicy
         //
     }
 
+    public function before(User $user): ?Response
+    {
+        if ($user->hasRole('Administrator')) {
+            return Response::allow();
+        }
+
+        return null;
+    }
+
     public function viewAny(User $user): Response
     {
         return $user->can('list-roles') ? Response::allow() : Response::deny();
