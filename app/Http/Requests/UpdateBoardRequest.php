@@ -10,18 +10,14 @@ class UpdateBoardRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
     public function authorize(): bool
     {
-        return auth()->user()->hasPermissionTo('edit-boards');
+        return auth()->user()->can('edit', $this->route('board'));
     }
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array
      */
     public function rules(): array
     {

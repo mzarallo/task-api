@@ -12,6 +12,7 @@ use App\Http\Controllers\UsersController;
 use App\Models\Board;
 use App\Models\Stage;
 use App\Models\Task;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -53,15 +54,15 @@ Route::name('api.')->group(function () {
         Route::prefix('users')->name('users.')
             ->controller(UsersController::class)->group(function () {
                 Route::get('/', 'all')->name('all')
-                    ->can('list-users');
+                    ->can('viewAny', User::class);
                 Route::get('/{user}', 'getById')->name('getById')
-                    ->can('list-users')->scopeBindings();
+                    ->can('view', 'user')->scopeBindings();
                 Route::delete('/{user}', 'deleteById')->name('deleteById')
-                    ->can('delete-users')->scopeBindings();
+                    ->can('delete', 'user')->scopeBindings();
                 Route::patch('/{user}', 'updateById')->name('updateById')
-                    ->can('edit-users')->scopeBindings();
+                    ->can('edit', 'user')->scopeBindings();
                 Route::post('/', 'create')->name('create')
-                    ->can('create-users')->scopeBindings();
+                    ->can('create', User::class)->scopeBindings();
             });
 
         //Board routes

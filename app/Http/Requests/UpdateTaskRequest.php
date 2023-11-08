@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Requests\Tasks;
+namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateTaskRequest extends FormRequest
+class UpdateTaskRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return auth()->user()->can('create-tasks');
+        return auth()->user()->can('edit', $this->route('task'));
     }
 
     /**
@@ -25,13 +25,13 @@ class CreateTaskRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|string',
-            'description' => 'nullable|string',
-            'start_date' => 'required|date|before_or_equal:end_date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-            'tags' => 'nullable|array',
+            'title' => 'sometimes|string',
+            'description' => 'sometimes|string',
+            'start_date' => 'sometimes|date|before_or_equal:end_date',
+            'end_date' => 'sometimes|date|after_or_equal:start_date',
+            'tags' => 'sometimes|array',
             'tags.*' => 'string',
-            'order' => 'nullable|integer',
+            'order' => 'sometimes|integer',
         ];
     }
 }
