@@ -35,8 +35,11 @@ class BoardsController extends Controller
         return response()->json([], 204);
     }
 
-    public function updateById(Board $board, UpdateBoardRequest $request, UpdateBoardById $updateBoardById): JsonResponse
-    {
+    public function updateById(
+        Board $board,
+        UpdateBoardRequest $request,
+        UpdateBoardById $updateBoardById
+    ): JsonResponse {
         $boardResource = new BoardResource($updateBoardById->handle($board->id, $request->validated()));
 
         return response()->json($boardResource);
