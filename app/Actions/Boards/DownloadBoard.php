@@ -1,0 +1,74 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Actions\Boards;
+
+use App\Actions\Boards\Exports\CreateXlsFromBoard;
+use App\Actions\Users\GetUserById;
+use App\Data\Services\Boards\DownloadBoardServiceDto;
+use App\Models\Board;
+use App\Models\User;
+use App\Notifications\Boards\DownloadedBoard;
+use Illuminate\Database\Eloquent\Model;
+use Lorisleiva\Actions\Concerns\AsAction;
+
+class DownloadBoard
+{
+    use AsAction;
+
+    private Board|Model $board;
+
+    private string $filePath;
+
+    public function __construct(
+        private readonly GetUserById $getUserById,
+        private readonly GetBoardById $getBoardById,
+        private readonly CreateXlsFromBoard $createXlsFromBoard
+    ) {
+
+    }
+
+    protected function getBoard(int $boardId): void
+    {
+        $this->board = $this->getBoardById->handle(boardId: $boardId, relations: ['stages.tasks']);
+    }
+
+    public function handle(DownloadBoardServiceDto $dto): void
+    {
+        $this->getBoard($dto->board);
+        $this->getFile($dto->format);
+
+        $this->getUser($dto->user)->notify(
+            new DownloadedBoard(
+                board: $this->board,
+                filePath: $this->filePath
+            )
+        );
+
+    }
+
+    protected function getFile(string $format): void
+    {
+        $this->filePath = match ($format) {
+            'pdf' => $this->asPdf(),
+            default => $this->asXls()
+        };
+    }
+
+    protected function asPdf()
+    {
+        //TODO: implementar
+        return 'lala';
+    }
+
+    protected function asXls(): string
+    {
+        return $this->createXlsFromBoard->handle($this->board);
+    }
+
+    protected function getUser(int $userId): Model|User
+    {
+        return $this->getUserById->handle($userId);
+    }
+}

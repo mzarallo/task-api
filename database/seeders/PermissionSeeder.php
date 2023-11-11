@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Arr;
 use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 
 class PermissionSeeder extends Seeder
 {
@@ -37,6 +34,7 @@ class PermissionSeeder extends Seeder
             ['name' => 'list-comments', 'category' => 'Comments'],
             ['name' => 'list-permissions', 'category' => 'Permissions'],
             ['name' => 'list-roles', 'category' => 'Roles'],
+            ['name' => 'download-boards', 'category' => 'Boards'],
         ];
 
         foreach ($permissions as $permission) {

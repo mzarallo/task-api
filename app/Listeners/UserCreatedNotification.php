@@ -18,6 +18,6 @@ class UserCreatedNotification implements ShouldQueue
 
     public function handle(UserCreated $event): void
     {
-        $this->emailWithCredentialToUser->run($event->user, $event->password);
+        $this->emailWithCredentialToUser->handle($event->user, $event->password);
     }
 }

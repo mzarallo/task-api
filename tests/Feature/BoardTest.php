@@ -6,16 +6,18 @@ namespace Tests\Feature;
 
 use App\Models\Board;
 use App\Models\User;
+use App\Notifications\Boards\DownloadedBoard;
 use Database\Seeders\PermissionSeeder;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\TestCase;
 
 class BoardTest extends TestCase
 {
-    use WithFaker, DatabaseMigrations;
+    use DatabaseMigrations, WithFaker;
 
     /**
      * @test
@@ -31,21 +33,21 @@ class BoardTest extends TestCase
 
         $response->assertJson(
             fn (AssertableJson $json) => $json
-            ->has('links', fn (AssertableJson $json) => $json->hasAll('first', 'last', 'prev', 'next'))
-            ->has('meta', fn (AssertableJson $json) => $json->hasAll('current_page', 'from', 'last_page', 'links', 'path', 'per_page', 'to', 'total')
-            ->has('links.0', fn (AssertableJson $json) => $json->hasAll('url', 'label', 'active')))
-            ->has(
-                'data',
-                2,
-                fn (AssertableJson $json) => $json->hasAll('id', 'name', 'hex_color', 'author_id', 'author_full_name')
-            ->whereAllType([
-                'id' => 'integer',
-                'name' => 'string',
-                'hex_color' => 'string',
-                'author_id' => 'integer',
-                'author_full_name' => 'string',
-            ])
-            )
+                ->has('links', fn (AssertableJson $json) => $json->hasAll('first', 'last', 'prev', 'next'))
+                ->has('meta', fn (AssertableJson $json) => $json->hasAll('current_page', 'from', 'last_page', 'links', 'path', 'per_page', 'to', 'total')
+                    ->has('links.0', fn (AssertableJson $json) => $json->hasAll('url', 'label', 'active')))
+                ->has(
+                    'data',
+                    2,
+                    fn (AssertableJson $json) => $json->hasAll('id', 'name', 'hex_color', 'author_id', 'author_full_name')
+                        ->whereAllType([
+                            'id' => 'integer',
+                            'name' => 'string',
+                            'hex_color' => 'string',
+                            'author_id' => 'integer',
+                            'author_full_name' => 'string',
+                        ])
+                )
         )->assertOk();
     }
 
@@ -77,17 +79,17 @@ class BoardTest extends TestCase
             fn (AssertableJson $json) => $json->has(
                 'data',
                 fn (AssertableJson $json) => $json->hasAll('id', 'name', 'hex_color', 'author_id', 'author_full_name')
-            ->whereAllType([
-                'id' => 'integer',
-                'name' => 'string',
-                'hex_color' => 'string',
-                'author_id' => 'integer',
-                'author_full_name' => 'string',
-            ])->whereAll(
-                collect($board->getAttributes())->only([
-                    'name', 'hex_color', 'author_id', 'author_full_name',
-                ])->toArray()
-            )
+                    ->whereAllType([
+                        'id' => 'integer',
+                        'name' => 'string',
+                        'hex_color' => 'string',
+                        'author_id' => 'integer',
+                        'author_full_name' => 'string',
+                    ])->whereAll(
+                        collect($board->getAttributes())->only([
+                            'name', 'hex_color', 'author_id', 'author_full_name',
+                        ])->toArray()
+                    )
             )
         )->assertOk();
     }
@@ -173,8 +175,16 @@ class BoardTest extends TestCase
 
         $response->assertJson(
             fn (AssertableJson $json) => $json->whereAll($params->toArray())
-            ->etc()
+                ->etc()
         )->assertOk();
+    }
+
+    private function getParams(): Collection
+    {
+        return Collection::make([
+            'name' => $this->faker->name,
+            'hex_color' => $this->faker->hexColor(),
+        ]);
     }
 
     /**
@@ -219,7 +229,7 @@ class BoardTest extends TestCase
 
         $response->assertJson(
             fn (AssertableJson $json) => $json->whereAll($params->toArray())
-            ->etc()
+                ->etc()
         )->assertCreated();
     }
 
@@ -236,20 +246,32 @@ class BoardTest extends TestCase
 
         $response->assertJson(
             fn (AssertableJson $json) => $json->has('message')
-            ->has('errors')
-            ->whereType('errors', 'array')
-            ->whereType('message', 'string')
-            ->has('errors', fn (AssertableJson $json) => $json->hasAll(['name', 'hex_color']))
-            ->has('message')
-            ->etc()
+                ->has('errors')
+                ->whereType('errors', 'array')
+                ->whereType('message', 'string')
+                ->has('errors', fn (AssertableJson $json) => $json->hasAll(['name', 'hex_color']))
+                ->has('message')
+                ->etc()
         )->assertUnprocessable();
     }
 
-    private function getParams(): Collection
+    /**
+     * @test
+     */
+    public function send_board_as_xls_by_mail_notification(): void
     {
-        return Collection::make([
-            'name' => $this->faker->name,
-            'hex_color' => $this->faker->hexColor(),
-        ]);
+        Notification::fake();
+
+        $this->seed(PermissionSeeder::class);
+        $board = Board::factory()->create();
+        $user = User::factory()->create()->givePermissionTo('download-boards');
+
+        $this
+            ->actingAs($user)
+            ->getJson(route('api.boards.download', $board))
+            ->assertAccepted();
+
+        Notification::assertSentToTimes($user, DownloadedBoard::class);
+
     }
 }

@@ -70,6 +70,8 @@ Route::name('api.')->group(function () {
             ->controller(BoardsController::class)->group(function () {
                 Route::get('/', 'all')->name('all')
                     ->can('viewAny', Board::class)->scopeBindings();
+                Route::get('/download/{board}', 'download')->name('download')
+                    ->can('download', 'board')->scopeBindings();
                 Route::get('/{board}', 'getById')->name('getById')
                     ->can('view', 'board')->scopeBindings();
                 Route::delete('/{board}', 'deleteById')->name('deleteById')

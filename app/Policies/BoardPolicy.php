@@ -50,4 +50,9 @@ class BoardPolicy
     {
         return $user->can('create-boards') ? Response::allow() : Response::deny();
     }
+
+    public function download(User $user): Response
+    {
+        return $user->can('download-boards') ? Response::allow() : Response::deny();
+    }
 }
