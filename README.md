@@ -3,7 +3,6 @@
 </p>
 
 ## Acerca de Task App
-s
 API Rest para el manejo de tareas en tableros al estilo Trello de manera más básica. El objetivo del proyecto es ser utilizado **como portafolio**
 
 ## Características
@@ -25,7 +24,7 @@ API Rest para el manejo de tareas en tableros al estilo Trello de manera más b�
 | Notificaciones                  | ✅ |                         |
 | Policies                        | ✅ |                         |
 | Unit & Features Test            | 🏗️ |                         |
-| Descarga de tables .xlsx y .pdf | 🟡 | Falta exportar como pdf |
+| Descarga de tables .xlsx y .pdf | ✅ |                         |
 
 ## Leyendas
 
