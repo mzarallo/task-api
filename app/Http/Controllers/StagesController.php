@@ -9,6 +9,7 @@ use App\Actions\Stages\DeleteStageById;
 use App\Actions\Stages\GetAllStages;
 use App\Actions\Stages\GetStageById;
 use App\Actions\Stages\UpdateStageById;
+use App\Data\Services\Stages\GetStageByIdServiceDto;
 use App\Data\Services\Stages\UpdateStageServiceDto;
 use App\Http\Requests\Stages\CreateStageRequest;
 use App\Http\Requests\Stages\UpdateStageRequest;
@@ -24,9 +25,11 @@ class StagesController extends Controller
     {
         return new StageResource(
             $getStageById->handle(
-                stageId: $stage->id,
-                whereClause: ['board_id' => $board->id],
-                relations: ['author']
+                GetStageByIdServiceDto::validateAndCreate([
+                    'stage_id' => $stage->id,
+                    'where_clause' => ['board_id' => $board->id],
+                    'relations' => ['author'],
+                ])
             )
         );
     }
