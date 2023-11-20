@@ -257,8 +257,10 @@ class BoardTest extends TestCase
 
     /**
      * @test
+     *
+     * @dataProvider formatsForBoardNotification
      */
-    public function send_board_as_xls_by_mail_notification(): void
+    public function send_board_as_xls_and_pdf_by_mail_notification(string $format): void
     {
         Notification::fake();
 
@@ -268,10 +270,40 @@ class BoardTest extends TestCase
 
         $this
             ->actingAs($user)
-            ->getJson(route('api.boards.download', $board))
+            ->getJson(route('api.boards.download', ['format' => $format, $board]))
             ->assertAccepted();
 
         Notification::assertSentToTimes($user, DownloadedBoard::class);
 
+    }
+
+    /**
+     * @test
+     */
+    public function send_board_by_mail_is_validated(): void
+    {
+        Notification::fake();
+
+        $this->seed(PermissionSeeder::class);
+        $board = Board::factory()->create();
+        $user = User::factory()->create()->givePermissionTo('download-boards');
+
+        $this
+            ->actingAs($user)
+            ->getJson(route('api.boards.download', [$board]))
+            ->assertJson(fn (AssertableJson $json) => $json
+                ->has('message')
+                ->has('errors', fn (AssertableJson $json) => $json->has('format'))
+            )->assertUnprocessable();
+
+        Notification::assertNothingSent();
+    }
+
+    private function formatsForBoardNotification(): array
+    {
+        return [
+            ['format' => 'xls'],
+            ['format' => 'pdf'],
+        ];
     }
 }

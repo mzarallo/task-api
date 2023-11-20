@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Boards;
 
+use App\Actions\Boards\Exports\CreatePdfFromBoard;
 use App\Actions\Boards\Exports\CreateXlsFromBoard;
 use App\Actions\Users\GetUserById;
 use App\Data\Services\Boards\DownloadBoardServiceDto;
@@ -24,7 +25,8 @@ class DownloadBoard
     public function __construct(
         private readonly GetUserById $getUserById,
         private readonly GetBoardById $getBoardById,
-        private readonly CreateXlsFromBoard $createXlsFromBoard
+        private readonly CreateXlsFromBoard $createXlsFromBoard,
+        private readonly CreatePdfFromBoard $createPdfFromBoard
     ) {
 
     }
@@ -56,10 +58,9 @@ class DownloadBoard
         };
     }
 
-    protected function asPdf()
+    protected function asPdf(): string
     {
-        //TODO: implementar
-        return 'lala';
+        return $this->createPdfFromBoard->handle($this->board);
     }
 
     protected function asXls(): string

@@ -11,12 +11,12 @@ use App\Actions\Boards\GetAllBoards;
 use App\Actions\Boards\GetBoardById;
 use App\Actions\Boards\UpdateBoardById;
 use App\Data\Services\Boards\DownloadBoardServiceDto;
+use App\Http\Requests\Boards\DownloadBoardRequest;
 use App\Http\Requests\CreateBoardRequest;
 use App\Http\Requests\UpdateBoardRequest;
 use App\Http\Resources\BoardResource;
 use App\Models\Board;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -56,7 +56,7 @@ class BoardsController extends Controller
         return response()->json($boardResource, 201);
     }
 
-    public function download(Request $request, Board $board): JsonResponse
+    public function download(DownloadBoardRequest $request, Board $board): JsonResponse
     {
         DownloadBoard::dispatch(
             DownloadBoardServiceDto::validateAndCreate([
