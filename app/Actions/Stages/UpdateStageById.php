@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Stages;
 
+use App\Data\Services\Stages\UpdateStageServiceDto;
 use App\Models\Stage;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -13,11 +14,11 @@ class UpdateStageById
 
     private int|Stage $stage;
 
-    public function __construct(private GetStageById $getStageById)
+    public function __construct(private readonly GetStageById $getStageById)
     {
     }
 
-    public function handle(int|Stage $stage, array $attributes): Stage
+    public function handle(int|Stage $stage, UpdateStageServiceDto $dto): Stage
     {
         if ($stage instanceof Stage) {
             $this->stage = $stage;
@@ -27,11 +28,11 @@ class UpdateStageById
             $this->stage = $this->getStageById->handle($stage);
         }
 
-        return $this->updateStage($attributes);
+        return $this->updateStage($dto);
     }
 
-    private function updateStage(array $attributes)
+    private function updateStage(UpdateStageServiceDto $dto)
     {
-        return tap($this->stage)->update($attributes);
+        return tap($this->stage)->update($dto->toArray());
     }
 }
