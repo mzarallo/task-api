@@ -6,7 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Auth\GetJwtTokenForUser;
 use App\Actions\Auth\RefreshToken;
-use App\Http\Requests\LoginRequest;
+use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
 use Tymon\JWTAuth\Exceptions\JWTException;

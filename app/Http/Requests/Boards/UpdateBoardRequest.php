@@ -2,19 +2,18 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Boards;
 
-use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateUserRequest extends FormRequest
+class UpdateBoardRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return auth()->user()->can('edit', $this->route('user'));
+        return auth()->user()->can('edit', $this->route('board'));
     }
 
     /**
@@ -23,9 +22,8 @@ class UpdateUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'sometimes|string|max:255',
-            'last_name' => 'sometimes|string|max:255',
-            'profile_img_url' => 'sometimes|string|max:255',
+            'name' => 'sometimes',
+            'hex_color' => ['sometimes', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
         ];
     }
 }

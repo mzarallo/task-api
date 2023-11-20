@@ -9,7 +9,7 @@ use App\Actions\Stages\DeleteStageById;
 use App\Actions\Stages\GetAllStages;
 use App\Actions\Stages\GetStageById;
 use App\Actions\Stages\UpdateStageById;
-use App\Http\Requests\CreateStageRequest;
+use App\Http\Requests\Stages\CreateStageRequest;
 use App\Http\Resources\StageResource;
 use App\Models\Board;
 use App\Models\Stage;
