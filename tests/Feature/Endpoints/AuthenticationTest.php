@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature;
+namespace Tests\Feature\Endpoints;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
@@ -28,14 +28,14 @@ class AuthenticationTest extends TestCase
 
         $response->assertJson(
             fn (AssertableJson $json) => $json
-            ->hasAll('token_type', 'access_token', 'expires_in')
-            ->where('token_type', 'bearer')
-            ->whereAllType([
-                'token_type' => 'string',
-                'expires_in' => 'integer',
-                'access_token' => 'string',
-            ])
-            ->etc()
+                ->hasAll('token_type', 'access_token', 'expires_in')
+                ->where('token_type', 'bearer')
+                ->whereAllType([
+                    'token_type' => 'string',
+                    'expires_in' => 'integer',
+                    'access_token' => 'string',
+                ])
+                ->etc()
         )->assertStatus(200);
     }
 

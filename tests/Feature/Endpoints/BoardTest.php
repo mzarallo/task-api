@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature;
+namespace Tests\Feature\Endpoints;
 
 use App\Models\Board;
 use App\Models\User;

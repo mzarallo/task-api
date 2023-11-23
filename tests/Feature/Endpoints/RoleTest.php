@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature;
+namespace Tests\Feature\Endpoints;
 
 use App\Models\User;
 use Database\Seeders\PermissionSeeder;
@@ -32,13 +32,13 @@ class RoleTest extends TestCase
                 'data',
                 3,
                 fn (AssertableJson $json) => $json->hasAll('id', 'name', 'guard', 'created_at', 'updated_at')
-            ->whereAllType([
-                'id' => 'integer',
-                'name' => 'string',
-                'guard' => 'string',
-                'created_at' => 'string',
-                'updated_at' => 'string',
-            ])
+                    ->whereAllType([
+                        'id' => 'integer',
+                        'name' => 'string',
+                        'guard' => 'string',
+                        'created_at' => 'string',
+                        'updated_at' => 'string',
+                    ])
             )
         )->assertOk();
     }
