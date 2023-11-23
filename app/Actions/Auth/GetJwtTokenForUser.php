@@ -11,6 +11,9 @@ class GetJwtTokenForUser
 {
     use AsAction;
 
+    /**
+     * @throws AuthenticationException
+     */
     public function handle(string $email, string $password): object
     {
         $token = $this->attemptLogin(['email' => $email, 'password' => $password]);
