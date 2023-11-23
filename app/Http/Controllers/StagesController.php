@@ -8,8 +8,10 @@ use App\Actions\Stages\CreateStage;
 use App\Actions\Stages\DeleteStageById;
 use App\Actions\Stages\GetAllStages;
 use App\Actions\Stages\GetStageById;
-use App\Actions\Stages\UpdateStageById;
+use App\Actions\Stages\UpdateStage;
+use App\Data\Services\Stages\CreateStageServiceDto;
 use App\Data\Services\Stages\DeleteStageByIdServiceDto;
+use App\Data\Services\Stages\GetAllStagesServiceDto;
 use App\Data\Services\Stages\GetStageByIdServiceDto;
 use App\Data\Services\Stages\UpdateStageServiceDto;
 use App\Http\Requests\Stages\CreateStageRequest;
@@ -52,7 +54,7 @@ class StagesController extends Controller
         UpdateStageRequest $request,
         Board $board,
         Stage $stage,
-        UpdateStageById $updateStageById
+        UpdateStage $updateStageById
     ): JsonResponse {
         $stageUpdated = new StageResource(
             $updateStageById->handle($stage, UpdateStageServiceDto::validateAndCreate([
@@ -64,16 +66,30 @@ class StagesController extends Controller
         return response()->json($stageUpdated);
     }
 
-    public function all(int $boardId, GetAllStages $getAllStages): AnonymousResourceCollection
+    public function all(Board $board, GetAllStages $getAllStages): AnonymousResourceCollection
     {
+
         return StageResource::collection(
-            $getAllStages->run(boardId: $boardId, relations: ['author'])
+            $getAllStages->handle(
+                GetAllStagesServiceDto::validateAndCreate([
+                    'board_id' => $board->id,
+                    'relations' => ['author'],
+                    'paginated' => true,
+                ])
+            )
         );
     }
 
-    public function create(CreateStageRequest $request, CreateStage $createStage): JsonResponse
+    public function create(CreateStageRequest $request, Board $board, CreateStage $createStage): JsonResponse
     {
-        $boardResource = new StageResource($createStage->run($request->validated()));
+        $boardResource = new StageResource(
+            $createStage->handle(
+                CreateStageServiceDto::validateAndCreate([
+                    ...$request->validated(),
+                    'board_id' => $board->id,
+                ])
+            )
+        );
 
         return response()->json($boardResource, 201);
     }

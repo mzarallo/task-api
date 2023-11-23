@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Stages;
 
+use App\Data\Services\Stages\GetAllStagesServiceDto;
 use App\Models\Stage;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -25,7 +26,12 @@ class OrderStages
 
     private function getStages(int $boardId): void
     {
-        $this->stages = $this->getAllStages->handle(boardId: $boardId, paginated: false);
+        $this->stages = $this->getAllStages->handle(
+            GetAllStagesServiceDto::validateAndCreate([
+                'board_id' => $boardId,
+                'paginated' => false,
+            ])
+        );
     }
 
     private function orderStages(): Collection

@@ -8,7 +8,7 @@ use App\Data\Services\Stages\UpdateStageServiceDto;
 use App\Models\Stage;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class UpdateStageById
+class UpdateStage
 {
     use AsAction;
 

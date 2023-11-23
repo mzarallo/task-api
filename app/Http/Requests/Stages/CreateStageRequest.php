@@ -27,7 +27,6 @@ class CreateStageRequest extends FormRequest
             'hex_color' => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'order' => 'required|integer',
             'is_final_stage' => 'sometimes|boolean',
-            'board_id' => 'required|exists:boards,id|integer',
         ];
     }
 }

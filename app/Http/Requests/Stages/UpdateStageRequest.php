@@ -25,7 +25,7 @@ class UpdateStageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
+            'name' => 'sometimes|required|string|max:255',
             'hex_color' => ['nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'order' => 'sometimes|integer',
             'is_final_stage' => 'sometimes|boolean',

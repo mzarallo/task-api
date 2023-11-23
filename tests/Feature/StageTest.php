@@ -17,7 +17,7 @@ use Tests\TestCase;
 
 class StageTest extends TestCase
 {
-    use WithFaker, DatabaseMigrations;
+    use DatabaseMigrations, WithFaker;
 
     /**
      * @test
@@ -33,24 +33,24 @@ class StageTest extends TestCase
 
         $response->assertJson(
             fn (AssertableJson $json) => $json
-            ->has('links', fn (AssertableJson $json) => $json->hasAll('first', 'last', 'prev', 'next'))
-            ->has('meta', fn (AssertableJson $json) => $json->hasAll('current_page', 'from', 'last_page', 'links', 'path', 'per_page', 'to', 'total')
-                ->has('links.0', fn (AssertableJson $json) => $json->hasAll('url', 'label', 'active')))
-            ->has(
-                'data',
-                3,
-                fn (AssertableJson $json) => $json->hasAll('id', 'name', 'slug', 'hex_color', 'order', 'is_final_stage', 'author_full_name')
-                ->whereAllType([
-                    'id' => 'integer',
-                    'name' => 'string',
-                    'slug' => 'string',
-                    'hex_color' => 'string',
-                    'order' => 'integer',
-                    'is_final_stage' => 'boolean',
-                    'author_full_name' => 'string',
-                ])
-                ->etc()
-            )
+                ->has('links', fn (AssertableJson $json) => $json->hasAll('first', 'last', 'prev', 'next'))
+                ->has('meta', fn (AssertableJson $json) => $json->hasAll('current_page', 'from', 'last_page', 'links', 'path', 'per_page', 'to', 'total')
+                    ->has('links.0', fn (AssertableJson $json) => $json->hasAll('url', 'label', 'active')))
+                ->has(
+                    'data',
+                    3,
+                    fn (AssertableJson $json) => $json->hasAll('id', 'name', 'slug', 'hex_color', 'order', 'is_final_stage', 'author_full_name')
+                        ->whereAllType([
+                            'id' => 'integer',
+                            'name' => 'string',
+                            'slug' => 'string',
+                            'hex_color' => 'string',
+                            'order' => 'integer',
+                            'is_final_stage' => 'boolean',
+                            'author_full_name' => 'string',
+                        ])
+                        ->etc()
+                )
         )->assertOk();
     }
 
@@ -83,23 +83,23 @@ class StageTest extends TestCase
             fn (AssertableJson $json) => $json->has(
                 'data',
                 fn (AssertableJson $json) => $json->hasAll('id', 'name', 'slug', 'hex_color', 'order', 'is_final_stage', 'author_full_name')
-                ->whereAllType([
-                    'id' => 'integer',
-                    'name' => 'string',
-                    'slug' => 'string',
-                    'hex_color' => 'string',
-                    'order' => 'integer',
-                    'is_final_stage' => 'boolean',
-                    'author_full_name' => 'string',
-                ])
-                ->etc()
-                ->where('id', $stage->id)
-                ->where('name', $stage->name)
-                ->where('slug', $stage->slug)
-                ->where('hex_color', $stage->hex_color)
-                ->where('order', $stage->order)
-                ->where('is_final_stage', $stage->is_final_stage)
-                ->where('author_full_name', $stage->author_full_name)
+                    ->whereAllType([
+                        'id' => 'integer',
+                        'name' => 'string',
+                        'slug' => 'string',
+                        'hex_color' => 'string',
+                        'order' => 'integer',
+                        'is_final_stage' => 'boolean',
+                        'author_full_name' => 'string',
+                    ])
+                    ->etc()
+                    ->where('id', $stage->id)
+                    ->where('name', $stage->name)
+                    ->where('slug', $stage->slug)
+                    ->where('hex_color', $stage->hex_color)
+                    ->where('order', $stage->order)
+                    ->where('is_final_stage', $stage->is_final_stage)
+                    ->where('author_full_name', $stage->author_full_name)
             )
         )->assertOk();
     }
@@ -175,9 +175,24 @@ class StageTest extends TestCase
 
         $response->assertJson(
             fn (AssertableJson $json) => $json->where('name', $attributes->get('name'))
-            ->where('hex_color', $attributes->get('hex_color'))
-            ->etc()
+                ->where('hex_color', $attributes->get('hex_color'))
+                ->etc()
         )->assertOk();
+    }
+
+    private function getAttributes(): Collection
+    {
+        $name = $this->faker->randomElement(['Pending', 'In progress', 'Finished']);
+
+        return Collection::make([
+            'name' => $name,
+            'slug' => Str::slug($name),
+            'hex_color' => $this->faker->hexColor,
+            'order' => $this->faker->randomNumber(2),
+            'is_final_stage' => $this->faker->boolean,
+            'board_id' => Board::factory()->create()->id,
+            'author_id' => User::factory()->create()->id,
+        ]);
     }
 
     /**
@@ -228,7 +243,7 @@ class StageTest extends TestCase
 
         $response = $this
             ->actingAs(User::factory()->create()->givePermissionTo('create-stages'))
-            ->postJson(route('api.boards.stages.create', $board), []);
+            ->postJson(route('api.boards.stages.create', $board));
 
         $response->assertJson(
             fn (AssertableJson $json) => $json->has('message')
@@ -240,7 +255,6 @@ class StageTest extends TestCase
                     'name',
                     'hex_color',
                     'order',
-                    'board_id',
                 ]))
                 ->etc()
         )->assertUnprocessable();
@@ -258,20 +272,5 @@ class StageTest extends TestCase
             ->postJson(route('api.boards.stages.create', $board), []);
 
         $response->assertForbidden();
-    }
-
-    private function getAttributes(): Collection
-    {
-        $name = $this->faker->randomElement(['Pending', 'In progress', 'Finished']);
-
-        return Collection::make([
-            'name' => $name,
-            'slug' => Str::slug($name),
-            'hex_color' => $this->faker->hexColor,
-            'order' => $this->faker->randomNumber(2),
-            'is_final_stage' => $this->faker->boolean,
-            'board_id' => Board::factory()->create()->id,
-            'author_id' => User::factory()->create()->id,
-        ]);
     }
 }
