@@ -9,6 +9,7 @@ use App\Actions\Stages\DeleteStageById;
 use App\Actions\Stages\GetAllStages;
 use App\Actions\Stages\GetStageById;
 use App\Actions\Stages\UpdateStageById;
+use App\Data\Services\Stages\DeleteStageByIdServiceDto;
 use App\Data\Services\Stages\GetStageByIdServiceDto;
 use App\Data\Services\Stages\UpdateStageServiceDto;
 use App\Http\Requests\Stages\CreateStageRequest;
@@ -18,6 +19,7 @@ use App\Models\Board;
 use App\Models\Stage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Symfony\Component\HttpFoundation\Response;
 
 class StagesController extends Controller
 {
@@ -36,9 +38,14 @@ class StagesController extends Controller
 
     public function deleteById(Board $board, Stage $stage, DeleteStageById $deleteStageById): JsonResponse
     {
-        $deleteStageById->handle(stageId: $stage->id, whereClause: ['board_id' => $board->id]);
+        $deleteStageById->handle(
+            DeleteStageByIdServiceDto::validateAndCreate([
+                'stage_id' => $stage->id,
+                'where_clause' => ['board_id' => $board->id],
+            ])
+        );
 
-        return response()->json([], 204);
+        return response()->json([], Response::HTTP_NO_CONTENT);
     }
 
     public function updateById(
