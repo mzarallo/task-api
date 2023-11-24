@@ -9,6 +9,7 @@ use App\Actions\Boards\Exports\CreateXlsFromBoard;
 use App\Actions\Users\GetUserById;
 use App\Data\Services\Boards\DownloadBoardServiceDto;
 use App\Data\Services\Boards\GetBoardByIdServiceDto;
+use App\Data\Services\Users\GetUserByIdServiceDto;
 use App\Models\Board;
 use App\Models\User;
 use App\Notifications\Boards\DownloadedBoard;
@@ -76,6 +77,8 @@ class DownloadBoard
 
     protected function getUser(int $userId): Model|User
     {
-        return $this->getUserById->handle($userId);
+        return $this->getUserById->handle(GetUserByIdServiceDto::validateAndCreate([
+            'user_id' => $userId,
+        ]));
     }
 }

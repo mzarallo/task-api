@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Actions\Users;
 
-use App\Repositories\Contracts\UsersRepositoryContract;
+use App\Data\Services\Users\GetUserByIdServiceDto;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -12,13 +13,8 @@ class GetUserById
 {
     use AsAction;
 
-    public function __construct(private readonly UsersRepositoryContract $repository)
+    public function handle(GetUserByIdServiceDto $dto): Model
     {
-
-    }
-
-    public function handle(int $userId): Model
-    {
-        return $this->repository->find($userId);
+        return User::query()->findOrFail($dto->user_id);
     }
 }

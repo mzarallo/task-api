@@ -14,9 +14,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        foreach (config('repositories') as $interface => $repository) {
-            $this->app->bind($interface, $repository);
-        }
     }
 
     /**

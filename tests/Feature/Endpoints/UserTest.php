@@ -19,12 +19,12 @@ use Tests\TestCase;
 
 class UserTest extends TestCase
 {
-    use WithFaker, DatabaseMigrations;
+    use DatabaseMigrations, WithFaker;
 
     /**
      * @test
      */
-    public function user_can_get_all_users(): void
+    public function user_can_get_all_users_paginated(): void
     {
         $this->seed(PermissionSeeder::class);
         User::factory()->count(2)->create();
@@ -34,19 +34,26 @@ class UserTest extends TestCase
             ->getJson(route('api.users.all'));
 
         $response->assertJson(
-            fn (AssertableJson $json) => $json->has(
-                'data',
-                3,
-                fn (AssertableJson $json) => $json->hasAll('id', 'name', 'last_name', 'abbreviation', 'img_profile', 'email')
-                    ->whereAllType([
-                        'id' => 'integer',
-                        'name' => 'string',
-                        'last_name' => 'string',
-                        'abbreviation' => 'string',
-                        'img_profile' => 'string|null',
-                        'email' => 'string',
-                    ])
-            )
+            fn (AssertableJson $json) => $json
+                ->has('links', fn (AssertableJson $json) => $json
+                    ->hasAll('first', 'last', 'prev', 'next'))
+                ->has('meta', fn (AssertableJson $json) => $json
+                    ->hasAll('current_page', 'from', 'last_page', 'links', 'path', 'per_page', 'to', 'total')
+                    ->has('links.0', fn (AssertableJson $json) => $json->hasAll('url', 'label', 'active')))
+                ->has(
+                    'data',
+                    3,
+                    fn (AssertableJson $json) => $json
+                        ->hasAll('id', 'name', 'last_name', 'abbreviation', 'img_profile', 'email')
+                        ->whereAllType([
+                            'id' => 'integer',
+                            'name' => 'string',
+                            'last_name' => 'string',
+                            'abbreviation' => 'string',
+                            'img_profile' => 'string|null',
+                            'email' => 'string',
+                        ])
+                )
         )->assertOk();
     }
 

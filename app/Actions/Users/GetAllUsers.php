@@ -4,21 +4,25 @@ declare(strict_types=1);
 
 namespace App\Actions\Users;
 
-use App\Repositories\Contracts\UsersRepositoryContract;
+use App\Data\Services\Users\GetAllUsersServiceDto;
+use App\Models\User;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Spatie\LaravelData\Optional;
 
 class GetAllUsers
 {
     use AsAction;
 
-    public function __construct(private readonly UsersRepositoryContract $repository)
+    public function handle(GetAllUsersServiceDto $dto): LengthAwarePaginator|Collection
     {
+        $users = User::query()
+            ->when(! $dto->sort_fields instanceof Optional, function (Builder $builder) use ($dto) {
+                collect($dto->sort_fields)->each(fn ($field) => $builder->orderBy($field));
+            });
 
-    }
-
-    public function handle(array $sortFields = []): Collection
-    {
-        return $this->repository->all(sortFields: $sortFields);
+        return $dto->paginated ? $users->paginate(30) : $users->get();
     }
 }

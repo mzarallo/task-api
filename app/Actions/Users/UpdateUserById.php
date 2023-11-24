@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Actions\Users;
 
-use App\Repositories\Contracts\UsersRepositoryContract;
+use App\Data\Services\Users\GetUserByIdServiceDto;
+use App\Data\Services\Users\UpdateUserByIdServiceDto;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -12,21 +14,21 @@ class UpdateUserById
 {
     use AsAction;
 
-    public function __construct(
-        private readonly GetUserById $getUserById,
-        private readonly UsersRepositoryContract $repository)
+    public function __construct(private readonly GetUserById $getUserById)
     {
     }
 
-    public function handle(int $userId, array $attributes): Model
+    public function handle(int $userId, UpdateUserByIdServiceDto $dto): Model
     {
-        $user = $this->repository->find($userId);
+        $user = $this->getUserById->handle(GetUserByIdServiceDto::validateAndCreate([
+            'user_id' => $userId,
+        ]));
 
-        return $this->updateUser($user, $attributes);
+        return $this->updateUser($user, $dto->toArray());
     }
 
-    private function updateUser(Model $user, array $attributes): Model
+    private function updateUser(Model|User $user, array $attributes): Model
     {
-        return $this->repository->update($user->id, $attributes);
+        return tap($user)->update($attributes);
     }
 }

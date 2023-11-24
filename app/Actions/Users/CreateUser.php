@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Actions\Users;
 
 use App\Actions\Roles\AttachRoleToUser;
+use App\Data\Services\Roles\AttachRoleToUserDto;
+use App\Data\Services\Users\CreateUserServiceDto;
 use App\Events\UserCreated;
 use App\Models\User;
-use App\Repositories\UsersRepository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -17,18 +18,18 @@ final class CreateUser
 {
     use AsAction;
 
-    public function __construct(
-        private readonly AttachRoleToUser $attachRoleToUser,
-        private readonly UsersRepository $repository,
-    ) {
+    public function __construct(private readonly AttachRoleToUser $attachRoleToUser)
+    {
     }
 
-    public function handle(array $attributes): User
+    public function handle(CreateUserServiceDto $dto): User
     {
-        return DB::transaction(function () use ($attributes) {
+        return DB::transaction(function () use ($dto) {
             return $this->attachRoleToUser->handle(
-                $this->createUser($attributes)->id,
-                $attributes['role']
+                $this->createUser($dto->except('role')->toArray())->id,
+                AttachRoleToUserDto::validateAndCreate([
+                    'role' => $dto->role,
+                ])
             );
         });
     }
@@ -36,7 +37,8 @@ final class CreateUser
     private function createUser(array $attributes): Model
     {
         $password = $this->generatePassword();
-        $user = $this->repository->create([
+
+        $user = User::query()->create([
             ...$attributes,
             'password' => $password,
         ]);
