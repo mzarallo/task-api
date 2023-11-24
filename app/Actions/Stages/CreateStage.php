@@ -24,9 +24,6 @@ class CreateStage
             GetOrderServiceDto::validateAndCreate(['board_id' => $dto->board_id, 'order' => $dto->order])
         );
 
-        return Stage::query()->create([
-            ...$dto->toArray(),
-            'author_id' => auth()->user()->id,
-        ]);
+        return Stage::query()->create($dto->toArray());
     }
 }

@@ -16,7 +16,8 @@ class Board extends Model
 
     protected $fillable = [
         'name',
-        'hex_color'
+        'hex_color',
+        'author_id',
     ];
 
     public function author(): BelongsTo

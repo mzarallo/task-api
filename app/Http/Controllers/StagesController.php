@@ -43,7 +43,6 @@ class StagesController extends Controller
         $deleteStageById->handle(
             DeleteStageByIdServiceDto::validateAndCreate([
                 'stage_id' => $stage->id,
-                'where_clause' => ['board_id' => $board->id],
             ])
         );
 
@@ -87,6 +86,7 @@ class StagesController extends Controller
                 CreateStageServiceDto::validateAndCreate([
                     ...$request->validated(),
                     'board_id' => $board->id,
+                    'author_id' => auth()->id(),
                 ])
             )
         );

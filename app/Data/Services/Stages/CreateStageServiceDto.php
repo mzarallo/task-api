@@ -26,6 +26,8 @@ class CreateStageServiceDto extends Data
         public int $order,
         #[Required, IntegerType, Exists('boards', 'id')]
         public int $board_id,
+        #[Required, IntegerType, Exists('users', 'id')]
+        public int $author_id,
         #[Sometimes, BooleanType]
         public bool|Optional $is_final_stage,
     ) {

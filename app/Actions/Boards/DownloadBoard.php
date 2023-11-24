@@ -8,6 +8,7 @@ use App\Actions\Boards\Exports\CreatePdfFromBoard;
 use App\Actions\Boards\Exports\CreateXlsFromBoard;
 use App\Actions\Users\GetUserById;
 use App\Data\Services\Boards\DownloadBoardServiceDto;
+use App\Data\Services\Boards\GetBoardByIdServiceDto;
 use App\Models\Board;
 use App\Models\User;
 use App\Notifications\Boards\DownloadedBoard;
@@ -33,7 +34,12 @@ class DownloadBoard
 
     protected function getBoard(int $boardId): void
     {
-        $this->board = $this->getBoardById->handle(boardId: $boardId, relations: ['stages.tasks']);
+        $this->board = $this->getBoardById->handle(
+            GetBoardByIdServiceDto::validateAndCreate([
+                'board_id' => $boardId,
+                'relations' => ['stages.tasks'],
+            ])
+        );
     }
 
     public function handle(DownloadBoardServiceDto $dto): void

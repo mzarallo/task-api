@@ -10,7 +10,12 @@ use App\Actions\Boards\DownloadBoard;
 use App\Actions\Boards\GetAllBoards;
 use App\Actions\Boards\GetBoardById;
 use App\Actions\Boards\UpdateBoardById;
+use App\Data\Services\Boards\CreateBoardServiceDto;
+use App\Data\Services\Boards\DeleteBoardByIdServiceDto;
 use App\Data\Services\Boards\DownloadBoardServiceDto;
+use App\Data\Services\Boards\GetAllBoardsServiceDto;
+use App\Data\Services\Boards\GetBoardByIdServiceDto;
+use App\Data\Services\Boards\UpdateBoardServiceDto;
 use App\Http\Requests\Boards\CreateBoardRequest;
 use App\Http\Requests\Boards\DownloadBoardRequest;
 use App\Http\Requests\Boards\UpdateBoardRequest;
@@ -24,19 +29,30 @@ class BoardsController extends Controller
 {
     public function all(GetAllBoards $getAllBoards): AnonymousResourceCollection
     {
-        return BoardResource::collection($getAllBoards->run(['author']));
+        return BoardResource::collection(
+            $getAllBoards->handle(
+                GetAllBoardsServiceDto::validateAndCreate([
+                    'relations' => ['author'],
+                    'paginated' => true,
+                ])
+            ),
+        );
     }
 
     public function getById(Board $board, GetBoardById $getBoardById): BoardResource|JsonResponse
     {
-        return new BoardResource($getBoardById->handle($board->id));
+        return new BoardResource($getBoardById->handle(
+            GetBoardByIdServiceDto::validateAndCreate([
+                'board_id' => $board->id,
+            ]))
+        );
     }
 
     public function deleteById(Board $board, DeleteBoardById $deleteBoardById): JsonResponse
     {
-        $deleteBoardById->run($board->id);
+        $deleteBoardById->handle(DeleteBoardByIdServiceDto::validateAndCreate(['board_id' => $board->id]));
 
-        return response()->json([], 204);
+        return response()->json([], Response::HTTP_NO_CONTENT);
     }
 
     public function updateById(
@@ -44,16 +60,28 @@ class BoardsController extends Controller
         UpdateBoardRequest $request,
         UpdateBoardById $updateBoardById
     ): JsonResponse {
-        $boardResource = new BoardResource($updateBoardById->handle($board->id, $request->validated()));
+        $boardResource = new BoardResource(
+            $updateBoardById->handle(
+                $board->id,
+                UpdateBoardServiceDto::validateAndCreate($request->validated())
+            )
+        );
 
         return response()->json($boardResource);
     }
 
     public function create(CreateBoardRequest $request, CreateBoard $createBoard): JsonResponse
     {
-        $boardResource = new BoardResource($createBoard->run($request->validated()));
+        $boardResource = new BoardResource(
+            $createBoard->handle(
+                CreateBoardServiceDto::validateAndCreate([
+                    ...$request->validated(),
+                    'author_id' => auth()->id(),
+                ])
+            )
+        );
 
-        return response()->json($boardResource, 201);
+        return response()->json($boardResource, Response::HTTP_CREATED);
     }
 
     public function download(DownloadBoardRequest $request, Board $board): JsonResponse

@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace App\Actions\Boards;
 
+use App\Data\Services\Boards\CreateBoardServiceDto;
 use App\Models\Board;
+use Illuminate\Database\Eloquent\Model;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class CreateBoard
 {
     use AsAction;
 
-    public function handle(array $attributes): Board
+    public function handle(CreateBoardServiceDto $dto): Board|Model
     {
-        return auth()->user()->boards()->create($attributes);
+        return Board::query()->create($dto->toArray());
     }
 }
