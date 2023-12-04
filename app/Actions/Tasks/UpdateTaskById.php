@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Tasks;
 
+use App\Data\Services\Tasks\GetTaskByIdServiceDto;
 use App\Data\Services\Tasks\UpdateTaskServiceDto;
 use App\Models\Task;
 use Illuminate\Support\Arr;
@@ -29,7 +30,11 @@ class UpdateTaskById
     protected function setModel(int|Task $task): void
     {
         if (is_int($task)) {
-            $this->task = $this->getTaskById->handle($task);
+            $this->task = $this->getTaskById->handle(
+                GetTaskByIdServiceDto::validateAndCreate([
+                    'task_id' => $task,
+                ])
+            );
 
             return;
         }

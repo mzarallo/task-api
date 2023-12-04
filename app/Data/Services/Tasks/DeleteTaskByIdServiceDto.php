@@ -8,11 +8,11 @@ use Spatie\LaravelData\Attributes\Validation\Exists;
 use Spatie\LaravelData\Attributes\Validation\IntegerType;
 use Spatie\LaravelData\Data;
 
-class DeleteTaskServiceDto extends Data
+class DeleteTaskByIdServiceDto extends Data
 {
     public function __construct(
         #[IntegerType, Exists('tasks', 'id')]
-        public int $taskId,
+        public int $task_id,
     ) {
     }
 }

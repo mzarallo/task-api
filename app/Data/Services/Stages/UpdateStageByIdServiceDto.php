@@ -13,7 +13,7 @@ use Spatie\LaravelData\Attributes\Validation\StringType;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Optional;
 
-class UpdateStageServiceDto extends Data
+class UpdateStageByIdServiceDto extends Data
 {
     public function __construct(
         #[Sometimes, StringType]

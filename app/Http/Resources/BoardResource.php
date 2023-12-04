@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -13,7 +15,7 @@ class BoardResource extends JsonResource
             'name' => $this->name,
             'hex_color' => $this->hex_color,
             'author_id' => $this->author_id,
-            'author_full_name' => $this->author_full_name
+            'author_full_name' => $this->author_full_name,
         ];
     }
 }

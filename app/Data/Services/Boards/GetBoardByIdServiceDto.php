@@ -17,8 +17,6 @@ class GetBoardByIdServiceDto extends Data
         #[Required, IntegerType]
         public int $board_id,
         #[Sometimes, ArrayType]
-        public array|Optional $where_clause,
-        #[Sometimes, ArrayType]
         public array|Optional $relations,
     ) {
     }

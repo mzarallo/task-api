@@ -14,6 +14,6 @@ class GetAllPermissions
 
     public function handle(): Collection
     {
-        return Permission::orderBy('category')->get();
+        return Permission::query()->orderBy('category')->get();
     }
 }

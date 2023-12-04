@@ -21,9 +21,6 @@ class GetBoardById
             ->when(
                 ! $dto->relations instanceof Optional,
                 fn (Builder $builder) => $builder->with($dto->relations)
-            )->when(
-                ! $dto->where_clause instanceof Optional,
-                fn (Builder $builder) => $builder->where($dto->where_clause)
             )->findOrFail($dto->board_id);
     }
 }

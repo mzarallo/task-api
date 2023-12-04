@@ -17,7 +17,7 @@ class GetStageById
     public function handle(GetStageByIdServiceDto $dto): Stage
     {
         return Stage::query()
-            ->when($dto->where_clause, fn (Builder $query) => $query->where($dto->where_clause))
+            ->when(! $dto->where_clause instanceof Optional, fn (Builder $query) => $query->where($dto->where_clause))
             ->with($dto->relations instanceof Optional ? [] : $dto->relations)
             ->findOrFail($dto->stage_id);
     }

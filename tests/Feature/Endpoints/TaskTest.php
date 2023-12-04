@@ -17,7 +17,7 @@ use Tests\TestCase;
 
 class TaskTest extends TestCase
 {
-    use WithFaker, DatabaseMigrations;
+    use DatabaseMigrations, WithFaker;
 
     /**
      * @test
@@ -174,7 +174,6 @@ class TaskTest extends TestCase
     /** @test */
     public function user_can_delete_task_by_id(): void
     {
-        $this->withoutExceptionHandling();
         $this->seed(PermissionSeeder::class);
         $task = Task::factory()->create();
 

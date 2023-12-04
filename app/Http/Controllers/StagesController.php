@@ -8,12 +8,12 @@ use App\Actions\Stages\CreateStage;
 use App\Actions\Stages\DeleteStageById;
 use App\Actions\Stages\GetAllStages;
 use App\Actions\Stages\GetStageById;
-use App\Actions\Stages\UpdateStage;
+use App\Actions\Stages\UpdateStageById;
 use App\Data\Services\Stages\CreateStageServiceDto;
 use App\Data\Services\Stages\DeleteStageByIdServiceDto;
 use App\Data\Services\Stages\GetAllStagesServiceDto;
 use App\Data\Services\Stages\GetStageByIdServiceDto;
-use App\Data\Services\Stages\UpdateStageServiceDto;
+use App\Data\Services\Stages\UpdateStageByIdServiceDto;
 use App\Http\Requests\Stages\CreateStageRequest;
 use App\Http\Requests\Stages\UpdateStageRequest;
 use App\Http\Resources\StageResource;
@@ -53,10 +53,10 @@ class StagesController extends Controller
         UpdateStageRequest $request,
         Board $board,
         Stage $stage,
-        UpdateStage $updateStageById
+        UpdateStageById $updateStageById
     ): JsonResponse {
         $stageUpdated = new StageResource(
-            $updateStageById->handle($stage, UpdateStageServiceDto::validateAndCreate([
+            $updateStageById->handle($stage, UpdateStageByIdServiceDto::validateAndCreate([
                 ...$request->validated(),
                 'board_id' => $board->id,
             ]))

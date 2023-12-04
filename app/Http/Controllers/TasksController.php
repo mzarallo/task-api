@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Actions\Tasks\CreateTaskService;
+use App\Actions\Tasks\CreateTask;
 use App\Actions\Tasks\DeleteTaskById;
-use App\Actions\Tasks\GetAllTasksService;
+use App\Actions\Tasks\GetAllTasks;
 use App\Actions\Tasks\UpdateTaskById;
 use App\Data\Services\Tasks\CreateTaskServiceDto;
-use App\Data\Services\Tasks\DeleteTaskServiceDto;
+use App\Data\Services\Tasks\DeleteTaskByIdServiceDto;
 use App\Data\Services\Tasks\GetAllTaskServiceDto;
 use App\Data\Services\Tasks\UpdateTaskServiceDto;
 use App\Http\Requests\Tasks\CreateTaskRequest;
@@ -24,8 +24,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class TasksController extends Controller
 {
-    public function create(CreateTaskRequest $request, Board $board, Stage $stage, CreateTaskService $taskService): TaskResource
-    {
+    public function create(
+        CreateTaskRequest $request,
+        Board $board,
+        Stage $stage,
+        CreateTask $taskService
+    ): TaskResource {
         return new TaskResource(
             $taskService->handle(
                 CreateTaskServiceDto::from([
@@ -39,7 +43,7 @@ class TasksController extends Controller
 
     public function deleteById(Board $board, Stage $stage, Task $task, DeleteTaskById $deleteTask): JsonResponse
     {
-        $deleteTask->handle(DeleteTaskServiceDto::from(['taskId' => $task->id]));
+        $deleteTask->handle(DeleteTaskByIdServiceDto::validateAndCreate(['task_id' => $task->id]));
 
         return response()->json([], Response::HTTP_NO_CONTENT);
     }
@@ -60,7 +64,7 @@ class TasksController extends Controller
         );
     }
 
-    public function all(Board $board, Stage $stage, GetAllTasksService $tasksService): AnonymousResourceCollection
+    public function all(Board $board, Stage $stage, GetAllTasks $tasksService): AnonymousResourceCollection
     {
         return TaskResource::collection(
             $tasksService->handle(

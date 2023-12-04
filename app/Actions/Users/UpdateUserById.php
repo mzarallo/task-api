@@ -20,9 +20,11 @@ class UpdateUserById
 
     public function handle(int $userId, UpdateUserByIdServiceDto $dto): Model
     {
-        $user = $this->getUserById->handle(GetUserByIdServiceDto::validateAndCreate([
-            'user_id' => $userId,
-        ]));
+        $user = $this->getUserById->handle(
+            GetUserByIdServiceDto::validateAndCreate([
+                'user_id' => $userId,
+            ])
+        );
 
         return $this->updateUser($user, $dto->toArray());
     }

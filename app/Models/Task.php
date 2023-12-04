@@ -21,6 +21,7 @@ class Task extends Model
         'tags',
         'order',
         'stage_id',
+        'author_id',
     ];
 
     protected $casts = [

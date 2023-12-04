@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Tasks;
 
-use App\Data\Services\Tasks\DeleteTaskServiceDto;
+use App\Data\Services\Tasks\DeleteTaskByIdServiceDto;
 use App\Models\Task;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -12,10 +12,10 @@ class DeleteTaskById
 {
     use AsAction;
 
-    public function handle(DeleteTaskServiceDto $dto): bool|null
+    public function handle(DeleteTaskByIdServiceDto $dto): ?bool
     {
         return Task::query()
-            ->findOrFail($dto->taskId)
+            ->findOrFail($dto->task_id)
             ->delete();
     }
 }

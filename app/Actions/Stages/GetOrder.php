@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\Stages;
 
 use App\Data\Services\Stages\GetOrderServiceDto;
-use App\Data\Services\Stages\UpdateStageServiceDto;
+use App\Data\Services\Stages\UpdateStageByIdServiceDto;
 use App\Models\Stage;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -17,7 +17,7 @@ class GetOrder
     public function __construct(
         private readonly OrderStages $orderStages,
         private Collection $stagesOrdered,
-        private UpdateStage $updateStage,
+        private UpdateStageById $updateStage,
     ) {
     }
 
@@ -44,7 +44,7 @@ class GetOrder
             $lastStage = $this->stagesOrdered->last();
 
             if ($lastStage->is_final_stage) {
-                $this->updateStage->handle($lastStage, UpdateStageServiceDto::validateAndCreate([
+                $this->updateStage->handle($lastStage, UpdateStageByIdServiceDto::validateAndCreate([
                     'order' => $this->stagesOrdered->count() + 1,
                 ]));
 
@@ -57,7 +57,7 @@ class GetOrder
         $this->stagesOrdered
             ->filter(fn (Stage $stage) => $stage->order >= $order)
             ->each(function (Stage $stage) {
-                $this->updateStage->handle($stage, UpdateStageServiceDto::validateAndCreate([
+                $this->updateStage->handle($stage, UpdateStageByIdServiceDto::validateAndCreate([
                     'order' => $stage->order + 1,
                 ]));
             });
