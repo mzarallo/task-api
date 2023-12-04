@@ -8,7 +8,7 @@ API Rest para el manejo de tareas en tableros al estilo Trello de manera más b�
 ## Características
 
 | Característica                  | Estado | Descripción             |
-|---------------------------------| ---- |-------------------------|
+|---------------------------------| --- |-------------------------|
 | Migraciones                     | ✅ |                         |
 | Factories                       | ✅ |                         |
 | Seeders                         | ✅ |                         |
@@ -22,7 +22,7 @@ API Rest para el manejo de tareas en tableros al estilo Trello de manera más b�
 | Mails                           | ✅ |                         |
 | Notificaciones                  | ✅ |                         |
 | Policies                        | ✅ |                         |
-| Unit & Features Test            | 🏗️ |                         |
+| Tests                           | ✅ |                         |
 | Descarga de tables .xlsx y .pdf | ✅ |                         |
 
 ## Leyendas
