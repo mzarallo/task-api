@@ -68,7 +68,9 @@ class TasksController extends Controller
     {
         return TaskResource::collection(
             $tasksService->handle(
-                GetAllTaskServiceDto::from(['board' => $board->id, 'stage' => $stage->id, 'relations' => ['author']])
+                GetAllTaskServiceDto::from([
+                    'board' => $board->id, 'stage' => $stage->id, 'relations' => ['author'],
+                ])
             )
         );
     }
