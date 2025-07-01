@@ -20,6 +20,5 @@ class CreateBoardServiceDto extends Data
         public string $hex_color,
         #[Required, IntegerType, Exists('users', 'id')]
         public int $author_id,
-    ) {
-    }
+    ) {}
 }

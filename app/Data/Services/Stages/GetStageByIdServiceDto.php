@@ -20,6 +20,5 @@ class GetStageByIdServiceDto extends Data
         public array|Optional $where_clause,
         #[Sometimes, ArrayType]
         public array|Optional $relations,
-    ) {
-    }
+    ) {}
 }
