@@ -12,10 +12,7 @@ class DeleteUserById
 {
     use AsAction;
 
-    public function __construct(private readonly GetUserById $getUserById)
-    {
-
-    }
+    public function __construct(private readonly GetUserById $getUserById) {}
 
     public function handle(DeleteUserByIdServiceDto $dto): bool
     {

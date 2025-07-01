@@ -26,6 +26,5 @@ class UpdateStageByIdServiceDto extends Data
         public bool|Optional $is_final_stage,
         #[Sometimes, IntegerType, Exists('boards', 'id')]
         public int|Optional $board_id,
-    ) {
-    }
+    ) {}
 }

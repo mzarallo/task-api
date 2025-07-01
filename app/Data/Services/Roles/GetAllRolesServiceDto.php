@@ -18,6 +18,5 @@ class GetAllRolesServiceDto extends Data
         public array|Optional $sort_fields,
         #[Required, BooleanType]
         public bool $paginated
-    ) {
-    }
+    ) {}
 }

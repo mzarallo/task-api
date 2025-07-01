@@ -16,9 +16,7 @@ class UpdateTaskById
 
     private int|Task $task;
 
-    public function __construct(private readonly GetTaskById $getTaskById)
-    {
-    }
+    public function __construct(private readonly GetTaskById $getTaskById) {}
 
     public function handle(int|Task $task, UpdateTaskServiceDto $dto): Task
     {

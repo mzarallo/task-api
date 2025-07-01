@@ -25,6 +25,5 @@ class GetAllTaskServiceDto extends Data
         public int|Optional $perPage = 15,
         #[BooleanType]
         public bool|Optional $paginated = true,
-    ) {
-    }
+    ) {}
 }

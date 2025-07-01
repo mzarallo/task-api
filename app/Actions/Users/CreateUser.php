@@ -18,9 +18,7 @@ final class CreateUser
 {
     use AsAction;
 
-    public function __construct(private readonly AttachRoleToUser $attachRoleToUser)
-    {
-    }
+    public function __construct(private readonly AttachRoleToUser $attachRoleToUser) {}
 
     public function handle(CreateUserServiceDto $dto): User
     {

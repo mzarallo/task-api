@@ -18,6 +18,5 @@ class GetBoardByIdServiceDto extends Data
         public int $board_id,
         #[Sometimes, ArrayType]
         public array|Optional $relations,
-    ) {
-    }
+    ) {}
 }

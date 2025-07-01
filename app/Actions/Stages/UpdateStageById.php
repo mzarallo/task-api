@@ -15,9 +15,7 @@ class UpdateStageById
 
     private int|Stage $stage;
 
-    public function __construct(private readonly GetStageById $getStageById)
-    {
-    }
+    public function __construct(private readonly GetStageById $getStageById) {}
 
     public function handle(int|Stage $stage, UpdateStageByIdServiceDto $dto): Stage
     {

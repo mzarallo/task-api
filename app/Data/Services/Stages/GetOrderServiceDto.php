@@ -15,6 +15,5 @@ class GetOrderServiceDto extends Data
         public int $board_id,
         #[Required, IntegerType]
         public int $order,
-    ) {
-    }
+    ) {}
 }

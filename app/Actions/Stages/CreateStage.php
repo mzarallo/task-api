@@ -14,9 +14,7 @@ class CreateStage
 {
     use AsAction;
 
-    public function __construct(private readonly GetOrder $getOrder)
-    {
-    }
+    public function __construct(private readonly GetOrder $getOrder) {}
 
     public function handle(CreateStageServiceDto $dto): Stage|Model
     {

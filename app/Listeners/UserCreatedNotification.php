@@ -12,9 +12,7 @@ class UserCreatedNotification implements ShouldQueue
 {
     public string $queue = 'listeners';
 
-    public function __construct(private readonly SendCredentialsEmailToUser $emailWithCredentialToUser)
-    {
-    }
+    public function __construct(private readonly SendCredentialsEmailToUser $emailWithCredentialToUser) {}
 
     public function handle(UserCreated $event): void
     {

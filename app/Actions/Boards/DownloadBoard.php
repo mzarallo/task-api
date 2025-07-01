@@ -29,9 +29,7 @@ class DownloadBoard
         private readonly GetBoardById $getBoardById,
         private readonly CreateXlsFromBoard $createXlsFromBoard,
         private readonly CreatePdfFromBoard $createPdfFromBoard
-    ) {
-
-    }
+    ) {}
 
     protected function getBoard(int $boardId): void
     {

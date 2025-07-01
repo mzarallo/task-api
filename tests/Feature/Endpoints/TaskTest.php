@@ -87,9 +87,7 @@ class TaskTest extends TestCase
         $response->assertNotFound();
     }
 
-    public function user_gets_404_error_when_he_wants_to_get_a_board_that_does_not_exist(): void
-    {
-    }
+    public function user_gets_404_error_when_he_wants_to_get_a_board_that_does_not_exist(): void {}
 
     /** @test  */
     public function user_can_create_task(): void

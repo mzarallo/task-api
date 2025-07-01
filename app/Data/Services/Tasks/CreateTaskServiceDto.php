@@ -34,6 +34,5 @@ class CreateTaskServiceDto extends Data
         public int $stage_id,
         #[Nullable, IntegerType]
         public ?int $author_id,
-    ) {
-    }
+    ) {}
 }

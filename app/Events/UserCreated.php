@@ -18,7 +18,5 @@ class UserCreated
      *
      * @return void
      */
-    public function __construct(public User $user, public string $password)
-    {
-    }
+    public function __construct(public User $user, public string $password) {}
 }

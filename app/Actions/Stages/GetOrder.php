@@ -18,8 +18,7 @@ class GetOrder
         private readonly OrderStages $orderStages,
         private Collection $stagesOrdered,
         private UpdateStageById $updateStage,
-    ) {
-    }
+    ) {}
 
     public function handle(GetOrderServiceDto $dto): int
     {

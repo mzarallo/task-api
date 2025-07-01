@@ -13,6 +13,5 @@ class DeleteTaskByIdServiceDto extends Data
     public function __construct(
         #[IntegerType, Exists('tasks', 'id')]
         public int $task_id,
-    ) {
-    }
+    ) {}
 }

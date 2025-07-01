@@ -13,6 +13,5 @@ class DeleteUserByIdServiceDto extends Data
     public function __construct(
         #[Required, IntegerType]
         public int $user_id
-    ) {
-    }
+    ) {}
 }

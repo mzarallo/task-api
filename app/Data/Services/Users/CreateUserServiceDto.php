@@ -26,6 +26,5 @@ class CreateUserServiceDto extends Data
         public string|Optional $profile_img_url,
         #[Required, Exists('roles', 'name')]
         public string $role,
-    ) {
-    }
+    ) {}
 }

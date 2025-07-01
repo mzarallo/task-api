@@ -18,6 +18,5 @@ class GetAllBoardsServiceDto extends Data
         public array|Optional $relations,
         #[Required, BooleanType]
         public bool $paginated,
-    ) {
-    }
+    ) {}
 }

@@ -18,8 +18,7 @@ class OrderStages
         private readonly GetAllStages $getAllStages,
         private readonly UpdateStageById $updateStage,
         private Collection $stages
-    ) {
-    }
+    ) {}
 
     public function handle(int $boardId): Collection
     {

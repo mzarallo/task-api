@@ -14,9 +14,7 @@ class CredentialsUserMail extends Mailable
     use Queueable;
     use SerializesModels;
 
-    public function __construct(protected User $user, protected string $password)
-    {
-    }
+    public function __construct(protected User $user, protected string $password) {}
 
     public function build(): self
     {

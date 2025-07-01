@@ -14,6 +14,5 @@ class AttachRoleToUserDto extends Data
     public function __construct(
         #[Required, StringType, Exists('roles', 'name')]
         public string $role
-    ) {
-    }
+    ) {}
 }

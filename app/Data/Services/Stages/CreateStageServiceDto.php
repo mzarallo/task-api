@@ -30,6 +30,5 @@ class CreateStageServiceDto extends Data
         public int $author_id,
         #[Sometimes, BooleanType]
         public bool|Optional $is_final_stage,
-    ) {
-    }
+    ) {}
 }

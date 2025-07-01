@@ -13,6 +13,5 @@ class DeleteBoardByIdServiceDto extends Data
     public function __construct(
         #[Required, IntegerType]
         public int $board_id,
-    ) {
-    }
+    ) {}
 }

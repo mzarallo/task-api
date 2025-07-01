@@ -14,9 +14,7 @@ class UpdateUserById
 {
     use AsAction;
 
-    public function __construct(private readonly GetUserById $getUserById)
-    {
-    }
+    public function __construct(private readonly GetUserById $getUserById) {}
 
     public function handle(int $userId, UpdateUserByIdServiceDto $dto): Model
     {

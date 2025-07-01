@@ -14,9 +14,7 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 
 class BoardExport implements FromCollection, ShouldAutoSize, WithHeadings, WithTitle
 {
-    public function __construct(public Board|Model $board)
-    {
-    }
+    public function __construct(public Board|Model $board) {}
 
     public function collection(): Collection
     {

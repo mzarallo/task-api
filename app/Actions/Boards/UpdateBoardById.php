@@ -13,9 +13,7 @@ class UpdateBoardById
 {
     use AsAction;
 
-    public function __construct(private readonly GetBoardById $getBoardById)
-    {
-    }
+    public function __construct(private readonly GetBoardById $getBoardById) {}
 
     public function handle(int $boardId, UpdateBoardServiceDto $dto): Board
     {

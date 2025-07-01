@@ -17,6 +17,5 @@ class UpdateBoardServiceDto extends Data
         public string|Optional $name,
         #[Sometimes, StringType, Regex('/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/')]
         public string|Optional $hex_color,
-    ) {
-    }
+    ) {}
 }

@@ -32,6 +32,5 @@ class UpdateTaskServiceDto extends Data
         public int|Optional $order,
         #[Sometimes, IntegerType]
         public int|Optional $stageId,
-    ) {
-    }
+    ) {}
 }

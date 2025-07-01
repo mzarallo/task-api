@@ -19,6 +19,5 @@ class UpdateUserByIdServiceDto extends Data
         public string|Optional $last_name,
         #[Sometimes, StringType, Max(255)]
         public string|Optional $profile_img_url,
-    ) {
-    }
+    ) {}
 }

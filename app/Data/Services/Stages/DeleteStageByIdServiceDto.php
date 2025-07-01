@@ -13,6 +13,5 @@ class DeleteStageByIdServiceDto extends Data
     public function __construct(
         #[Required, IntegerType]
         public int $stage_id,
-    ) {
-    }
+    ) {}
 }

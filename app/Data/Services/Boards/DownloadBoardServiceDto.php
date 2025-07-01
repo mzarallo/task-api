@@ -19,6 +19,5 @@ class DownloadBoardServiceDto extends Data
         public int $board,
         #[Required, StringType, In('xls', 'pdf')]
         public ?string $format
-    ) {
-    }
+    ) {}
 }
