@@ -2,39 +2,27 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Actions\Auth;
-
 use App\Actions\Auth\RefreshToken;
-use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
-class RefreshTokenTest extends TestCase
-{
-    #[Test]
-    public function it_return_a_fresh_token(): void
-    {
-        JWTAuth::partialMock()->shouldReceive('getToken')->andReturn('old_token');
-        JWTAuth::partialMock()->shouldReceive('refresh')->andReturn('refreshed_token');
+it('return a fresh token', function () {
+    JWTAuth::partialMock()->shouldReceive('getToken')->andReturn('old_token');
+    JWTAuth::partialMock()->shouldReceive('refresh')->andReturn('refreshed_token');
 
-        $response = RefreshToken::make()->handle();
+    $response = RefreshToken::make()->handle();
 
-        $this->assertIsObject($response);
-        $this->assertObjectHasProperty('access_token', $response);
-        $this->assertIsString($response->access_token);
-        $this->assertEquals('refreshed_token', $response->access_token);
-        $this->assertObjectHasProperty('token_type', $response);
-        $this->assertEquals('bearer', $response->token_type);
-        $this->assertObjectHasProperty('expires_in', $response);
-        $this->assertIsInt($response->expires_in);
-    }
+    expect($response)->toBeObject()
+        ->and($response)->toHaveProperties([
+            'access_token',
+            'token_type',
+            'expires_in',
+        ])->and($response->access_token)->toBeString()
+        ->and($response->access_token)->toEqual('refreshed_token')
+        ->and($response->token_type)->toEqual('bearer')
+        ->and($response->expires_in)->toBeInt();
+});
 
-    #[Test]
-    public function it_throws_exception_if_token_doesnt_exist(): void
-    {
-        $this->expectException(JWTException::class);
-
-        RefreshToken::make()->handle();
-    }
-}
+it('throws exception if token doesnt exist', function () {
+    RefreshToken::make()->handle();
+})->throws(JWTException::class);

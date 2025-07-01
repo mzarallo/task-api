@@ -2,38 +2,28 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Actions\Auth;
-
 use App\Actions\Auth\GetJwtTokenForUser;
 use App\Models\User;
 use Illuminate\Auth\AuthenticationException;
-use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
 
-class GetJwtTokenTest extends TestCase
-{
-    #[Test]
-    public function it_returns_a_jwt_token_for_a_valid_login()
-    {
-        $user = User::factory()->create();
+it('returns a jwt token for a valid login', function () {
+    $user = User::factory()->create();
 
-        $response = GetJwtTokenForUser::make()->handle($user->email, 'password');
+    $response = GetJwtTokenForUser::make()->handle($user->email, 'password');
 
-        $this->assertIsObject($response);
-        $this->assertObjectHasProperty('access_token', $response);
-        $this->assertIsString($response->access_token);
-        $this->assertObjectHasProperty('token_type', $response);
-        $this->assertEquals('bearer', $response->token_type);
-        $this->assertObjectHasProperty('expires_in', $response);
-        $this->assertIsInt($response->expires_in);
-    }
+    expect($response)->toBeObject()
+        ->and($response)->toHaveProperties([
+            'access_token',
+            'token_type',
+            'expires_in',
+        ])
+        ->and($response->access_token)->toBeString()
+        ->and($response->token_type)->toEqual('bearer')
+        ->and($response->expires_in)->toBeInt();
+});
 
-    #[Test]
-    public function it_throws_an_exception_for_an_invalid_login()
-    {
-        $user = User::factory()->create();
+it('throws an exception for an invalid login', function () {
+    $user = User::factory()->create();
 
-        $this->expectException(AuthenticationException::class);
-        $response = GetJwtTokenForUser::make()->handle($user->email, 'incorrect');
-    }
-}
+    GetJwtTokenForUser::make()->handle($user->email, 'incorrect');
+})->throws(AuthenticationException::class);

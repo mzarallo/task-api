@@ -2,49 +2,32 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Actions\Users;
-
 use App\Actions\Users\GetUserById;
 use App\Data\Services\Users\GetUserByIdServiceDto;
 use App\Models\User;
-use Illuminate\Foundation\Testing\WithFaker;
-use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
 
-class GetUserByIdTest extends TestCase
-{
-    use WithFaker;
+it('get user by id', function () {
+    $user = User::factory()->create();
 
-    #[Test]
-    public function it_get_user_by_id(): void
-    {
-        $user = User::factory()->create();
+    $response = GetUserById::make()->handle(
+        GetUserByIdServiceDto::from([
+            'user_id' => $user->id,
+        ])
+    );
 
-        $response = GetUserById::make()->handle(
-            GetUserByIdServiceDto::from([
-                'user_id' => $user->id,
-            ])
-        );
+    expect($response)->toBeInstanceOf(User::class)
+        ->and($response->id)->toEqual($user->id);
+});
 
-        $this->assertInstanceOf(User::class, $response);
-        $this->assertEquals($user->id, $response->id);
-    }
+it('get user by id with relations loaded', function () {
+    $user = User::factory()->create();
 
-    /**
-     * @test
-     */
-    public function it_get_user_by_id_with_relations_loaded(): void
-    {
+    $response = GetUserById::make()->handle(
+        GetUserByIdServiceDto::from([
+            'user_id' => $user->id,
+            'relations' => ['boards'],
+        ])
+    );
 
-        $user = User::factory()->create();
-
-        $response = GetUserById::make()->handle(
-            GetUserByIdServiceDto::from([
-                'user_id' => $user->id,
-                'relations' => ['boards'],
-            ])
-        );
-
-        $this->assertTrue($response->relationLoaded('boards'));
-    }
-}
+    expect($response->relationLoaded('boards'))->toBeTrue();
+});

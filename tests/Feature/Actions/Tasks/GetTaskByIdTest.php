@@ -2,47 +2,32 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Actions\Tasks;
-
 use App\Actions\Tasks\GetTaskById;
 use App\Data\Services\Tasks\GetTaskByIdServiceDto;
 use App\Models\Task;
-use Illuminate\Foundation\Testing\WithFaker;
-use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
 
-class GetTaskByIdTest extends TestCase
-{
-    use WithFaker;
+it('get task by id', function () {
+    $task = Task::factory()->create();
 
-    #[Test]
-    public function it_get_task_by_id(): void
-    {
-        $task = Task::factory()->create();
+    $response = GetTaskById::make()->handle(
+        GetTaskByIdServiceDto::from([
+            'task_id' => $task->id,
+        ])
+    );
 
-        $response = GetTaskById::make()->handle(
-            GetTaskByIdServiceDto::from([
-                'task_id' => $task->id,
-            ])
-        );
+    expect($response)->toBeInstanceOf(Task::class)
+        ->and($response->id)->toEqual($task->id);
+});
+it('get task by id with relations loaded', function () {
+    $task = Task::factory()->create();
 
-        $this->assertInstanceOf(Task::class, $response);
-        $this->assertEquals($task->id, $response->id);
-    }
+    $response = GetTaskById::make()->handle(
+        GetTaskByIdServiceDto::from([
+            'task_id' => $task->id,
+            'relations' => ['author', 'stage'],
+        ])
+    );
 
-    #[Test]
-    public function it_get_task_by_id_with_relations_loaded(): void
-    {
-        $task = Task::factory()->create();
-
-        $response = GetTaskById::make()->handle(
-            GetTaskByIdServiceDto::from([
-                'task_id' => $task->id,
-                'relations' => ['author', 'stage'],
-            ])
-        );
-
-        $this->assertTrue($response->relationLoaded('author'));
-        $this->assertTrue($response->relationLoaded('stage'));
-    }
-}
+    expect($response->relationLoaded('author'))->toBeTrue()
+        ->and($response->relationLoaded('stage'))->toBeTrue();
+});

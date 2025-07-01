@@ -2,68 +2,54 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Actions\Roles;
-
 use App\Actions\Roles\GetAllRoles;
 use App\Data\Services\Roles\GetAllRolesServiceDto;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Collection;
-use PHPUnit\Framework\Attributes\Test;
 use Spatie\Permission\Models\Role;
-use Tests\TestCase;
 
-class GetAllRolesTest extends TestCase
-{
-    use WithFaker;
+use function Pest\Laravel\seed;
 
-    #[Test]
-    public function it_get_all_roles_as_collection(): void
-    {
-        $this->seed(RoleSeeder::class);
+it('get all roles as collection', function () {
+    seed(RoleSeeder::class);
 
-        $response = GetAllRoles::make()->handle(
-            GetAllRolesServiceDto::from([
-                'paginated' => false,
-            ])
-        );
+    $response = GetAllRoles::make()->handle(
+        GetAllRolesServiceDto::from([
+            'paginated' => false,
+        ])
+    );
 
-        $this->assertInstanceOf(Collection::class, $response);
-        $this->assertContainsOnlyInstancesOf(Role::class, $response);
-    }
+    expect($response)->toBeInstanceOf(Collection::class)
+        ->and($response)->toContainOnlyInstancesOf(Role::class);
+});
 
-    #[Test]
-    public function it_get_all_roles_as_pagination(): void
-    {
-        $this->seed(RoleSeeder::class);
+it('get all roles as pagination', function () {
+    seed(RoleSeeder::class);
 
-        $response = GetAllRoles::make()->handle(
-            GetAllRolesServiceDto::from([
-                'paginated' => true,
-            ])
-        );
+    $response = GetAllRoles::make()->handle(
+        GetAllRolesServiceDto::from([
+            'paginated' => true,
+        ])
+    );
 
-        $this->assertInstanceOf(LengthAwarePaginator::class, $response);
-        $this->assertContainsOnlyInstancesOf(Role::class, $response->items());
-    }
+    expect($response)->toBeInstanceOf(LengthAwarePaginator::class)
+        ->and($response->items())->toContainOnlyInstancesOf(Role::class);
+});
 
-    #[Test]
-    public function it_get_all_roles_sorted(): void
-    {
-        Role::query()->create(['name' => 'AAA']);
-        Role::query()->create(['name' => 'CCC']);
-        Role::query()->create(['name' => 'BBB']);
+it('get all roles sorted', function () {
+    Role::query()->create(['name' => 'AAA']);
+    Role::query()->create(['name' => 'CCC']);
+    Role::query()->create(['name' => 'BBB']);
 
-        $response = GetAllRoles::make()->handle(
-            GetAllRolesServiceDto::from([
-                'sort_fields' => ['name'],
-                'paginated' => false,
-            ])
-        );
+    $response = GetAllRoles::make()->handle(
+        GetAllRolesServiceDto::from([
+            'sort_fields' => ['name'],
+            'paginated' => false,
+        ])
+    );
 
-        $this->assertEquals(1, $response->offsetGet(0)->id);
-        $this->assertEquals(3, $response->offsetGet(1)->id);
-        $this->assertEquals(2, $response->offsetGet(2)->id);
-    }
-}
+    expect($response->offsetGet(0)->id)->toEqual(1)
+        ->and($response->offsetGet(1)->id)->toEqual(3)
+        ->and($response->offsetGet(2)->id)->toEqual(2);
+});

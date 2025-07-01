@@ -2,31 +2,26 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Endpoints;
-
 use App\Models\User;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Testing\Fluent\AssertableJson;
-use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
 
-class RoleTest extends TestCase
-{
-    use DatabaseMigrations;
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\getJson;
+use function Pest\Laravel\seed;
 
-    #[Test]
-    public function user_can_obtain_all_roles(): void
-    {
-        $this->seed(RoleSeeder::class);
-        $this->seed(PermissionSeeder::class);
+uses(DatabaseMigrations::class);
 
-        $response = $this
-            ->actingAs(User::factory()->create()->givePermissionTo('list-roles'))
-            ->getJson(route('api.roles.all'));
+test('user can obtain all roles', function () {
+    seed(RoleSeeder::class);
+    seed(PermissionSeeder::class);
 
-        $response->assertJson(
+    actingAs(User::factory()->create()->givePermissionTo('list-roles'))
+        ->getJson(route('api.roles.all'))
+        ->assertOk()
+        ->assertJson(
             fn (AssertableJson $json) => $json->has(
                 'data',
                 3,
@@ -39,16 +34,12 @@ class RoleTest extends TestCase
                         'updated_at' => 'string',
                     ])
             )
-        )->assertOk();
-    }
+        );
+});
 
-    #[Test]
-    public function user_cannot_get_roles_without_authorization(): void
-    {
-        $this->actingAs(User::factory()->create());
+test('user cannot get roles without authorization', function () {
+    actingAs(User::factory()->create());
 
-        $response = $this->json('GET', route('api.roles.all'));
-
-        $response->assertForbidden();
-    }
-}
+    getJson(route('api.roles.all'))
+        ->assertForbidden();
+});

@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Actions\Stages;
-
 use App\Actions\Stages\GetAllStages;
 use App\Data\Services\Stages\GetAllStagesServiceDto;
 use App\Models\Board;
@@ -11,69 +9,54 @@ use App\Models\Stage;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Notification;
-use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
 
-class GetAllStagesTest extends TestCase
-{
-    #[Test]
-    public function it_get_stages_paginated(): void
-    {
-        Notification::fake();
-        $board = Board::factory()->create();
-        Stage::factory()->state(['board_id' => $board->id])->count(2)->create();
+it('get stages paginated', function () {
+    Notification::fake();
+    $board = Board::factory()->create();
+    Stage::factory()->state(['board_id' => $board->id])->count(2)->create();
 
-        $response = GetAllStages::make()->handle(
-            GetAllStagesServiceDto::from([
-                'board_id' => $board->id,
-                'paginated' => true,
-            ])
-        );
+    $response = GetAllStages::make()->handle(
+        GetAllStagesServiceDto::from([
+            'board_id' => $board->id,
+            'paginated' => true,
+        ])
+    );
 
-        $this->assertCount(2, $response->items());
-        $this->assertInstanceOf(LengthAwarePaginator::class, $response);
-        $this->assertContainsOnlyInstancesOf(Stage::class, $response->items());
-    }
+    expect($response->items())->toHaveCount(2)
+        ->and($response)->toBeInstanceOf(LengthAwarePaginator::class)
+        ->and($response->items())->toContainOnlyInstancesOf(Stage::class);
+});
 
-    /**
-     * @test
-     */
-    public function it_get_stages_as_collection(): void
-    {
-        Notification::fake();
-        $board = Board::factory()->create();
-        Stage::factory()->state(['board_id' => $board->id])->count(2)->create();
+it('get stages as collection', function () {
+    Notification::fake();
+    $board = Board::factory()->create();
+    Stage::factory()->state(['board_id' => $board->id])->count(2)->create();
 
-        $response = GetAllStages::make()->handle(
-            GetAllStagesServiceDto::from([
-                'board_id' => $board->id,
-                'paginated' => false,
-            ])
-        );
+    $response = GetAllStages::make()->handle(
+        GetAllStagesServiceDto::from([
+            'board_id' => $board->id,
+            'paginated' => false,
+        ])
+    );
 
-        $this->assertCount(2, $response);
-        $this->assertInstanceOf(Collection::class, $response);
-        $this->assertContainsOnlyInstancesOf(Stage::class, $response);
-    }
+    expect($response)->toHaveCount(2)
+        ->and($response)->toBeInstanceOf(Collection::class)
+        ->and($response)->toContainOnlyInstancesOf(Stage::class);
+});
 
-    /**
-     * @test
-     */
-    public function it_get_stages_with_relations_loaded(): void
-    {
-        Notification::fake();
-        $board = Board::factory()->create();
-        Stage::factory()->state(['board_id' => $board->id])->count(2)->create();
+it('get stages with relations loaded', function () {
+    Notification::fake();
+    $board = Board::factory()->create();
+    Stage::factory()->state(['board_id' => $board->id])->count(2)->create();
 
-        $response = GetAllStages::make()->handle(
-            GetAllStagesServiceDto::from([
-                'board_id' => $board->id,
-                'relations' => ['author', 'tasks'],
-                'paginated' => false,
-            ])
-        );
+    $response = GetAllStages::make()->handle(
+        GetAllStagesServiceDto::from([
+            'board_id' => $board->id,
+            'relations' => ['author', 'tasks'],
+            'paginated' => false,
+        ])
+    );
 
-        $this->assertTrue($response->offsetGet(0)->relationLoaded('author'));
-        $this->assertTrue($response->offsetGet(0)->relationLoaded('tasks'));
-    }
-}
+    expect($response->offsetGet(0)->relationLoaded('author'))->toBeTrue()
+        ->and($response->offsetGet(0)->relationLoaded('tasks'))->toBeTrue();
+});

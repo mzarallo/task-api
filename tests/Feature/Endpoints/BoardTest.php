@@ -2,36 +2,28 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Endpoints;
-
 use App\Models\Board;
 use App\Models\User;
 use App\Notifications\Boards\DownloadedBoard;
 use Database\Seeders\PermissionSeeder;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Testing\Fluent\AssertableJson;
-use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
 
-class BoardTest extends TestCase
-{
-    use DatabaseMigrations, WithFaker;
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\seed;
 
-    #[Test]
-    public function user_can_get_all_boards(): void
-    {
-        $this->seed(PermissionSeeder::class);
-        Board::factory()->count(2)->create();
+uses(\Illuminate\Foundation\Testing\DatabaseMigrations::class);
+uses(\Illuminate\Foundation\Testing\WithFaker::class);
 
-        $response = $this
-            ->actingAs(User::factory()->create()->givePermissionTo('list-boards'))
-            ->getJson(route('api.boards.all'));
+test('user can get all boards', function () {
+    seed(PermissionSeeder::class);
+    Board::factory()->count(2)->create();
 
-        $response->assertJson(
+    actingAs(
+        User::factory()->create()->givePermissionTo('list-boards')
+    )->getJson(route('api.boards.all'))
+        ->assertOk()
+        ->assertJson(
             fn (AssertableJson $json) => $json
                 ->has('links', fn (AssertableJson $json) => $json->hasAll('first', 'last', 'prev', 'next'))
                 ->has('meta', fn (AssertableJson $json) => $json->hasAll('current_page', 'from', 'last_page', 'links', 'path', 'per_page', 'to', 'total')
@@ -48,30 +40,23 @@ class BoardTest extends TestCase
                             'author_full_name' => 'string',
                         ])
                 )
-        )->assertOk();
-    }
+        );
+});
 
-    #[Test]
-    public function user_cannot_get_boards_without_authorization(): void
-    {
-        $response = $this
-            ->actingAs(User::factory()->create())
-            ->getJson(route('api.boards.all'));
+test('user cannot get boards without authorization', function () {
+    actingAs(User::factory()->create())
+        ->getJson(route('api.boards.all'))
+        ->assertForbidden();
+});
 
-        $response->assertForbidden();
-    }
+test('user can get single board by id', function () {
+    seed(PermissionSeeder::class);
+    $board = Board::factory()->create();
 
-    #[Test]
-    public function user_can_get_single_board_by_id(): void
-    {
-        $this->seed(PermissionSeeder::class);
-        $board = Board::factory()->create();
-
-        $response = $this
-            ->actingAs(User::factory()->create()->givePermissionTo('list-boards'))
-            ->getJson(route('api.boards.getById', [$board]));
-
-        $response->assertJson(
+    actingAs(User::factory()->create()->givePermissionTo('list-boards'))
+        ->getJson(route('api.boards.getById', [$board]))
+        ->assertOk()
+        ->assertJson(
             fn (AssertableJson $json) => $json->has(
                 'data',
                 fn (AssertableJson $json) => $json->hasAll('id', 'name', 'hex_color', 'author_id', 'author_full_name')
@@ -87,140 +72,104 @@ class BoardTest extends TestCase
                         ])->toArray()
                     )
             )
-        )->assertOk();
-    }
+        );
+});
 
-    #[Test]
-    public function user_gets_404_error_when_he_wants_to_get_a_board_that_does_not_exist(): void
-    {
-        $this->seed(PermissionSeeder::class);
+test('user gets 404 error when he wants to get a board that does not exist', function () {
+    seed(PermissionSeeder::class);
 
-        $response = $this
-            ->actingAs(User::factory()->create()->givePermissionTo('list-boards'))
-            ->getJson(route('api.boards.getById', ['board' => 99]));
+    actingAs(User::factory()->create()->givePermissionTo('list-boards'))
+        ->getJson(route('api.boards.getById', ['board' => 99]))
+        ->assertNotFound();
+});
 
-        $response->assertNotFound();
-    }
+test('user cannot get single board by id without permission', function () {
+    actingAs(User::factory()->create())
+        ->getJson(route('api.boards.getById', [Board::factory()->create()]))
+        ->assertForbidden();
+});
 
-    #[Test]
-    public function user_cannot_get_single_board_by_id_without_permission(): void
-    {
-        $response = $this
-            ->actingAs(User::factory()->create())
-            ->getJson(route('api.boards.getById', [Board::factory()->create()]));
+test('user can delete board by id', function () {
+    seed(PermissionSeeder::class);
+    $board = Board::factory()->create();
 
-        $response->assertForbidden();
-    }
+    actingAs(User::factory()->create()->givePermissionTo('delete-boards'))
+        ->deleteJson(route('api.boards.deleteById', [$board]))
+        ->assertNoContent();
+});
 
-    #[Test]
-    public function user_can_delete_board_by_id(): void
-    {
-        $this->seed(PermissionSeeder::class);
-        $board = Board::factory()->create();
+test('user cannot delete board by id without permissions', function () {
+    actingAs(User::factory()->create())
+        ->deleteJson(route('api.boards.deleteById', [Board::factory()->create()]))
+        ->assertForbidden();
+});
 
-        $response = $this
-            ->actingAs(User::factory()->create()->givePermissionTo('delete-boards'))
-            ->deleteJson(route('api.boards.deleteById', [$board]));
+test('user gets 404 error when he wants to delete a board that does not exist', function () {
+    seed(PermissionSeeder::class);
 
-        $response->assertStatus(204);
-        $this->assertDatabaseMissing('boards', ['id' => $board->id]);
-    }
+    actingAs(User::factory()->create()->givePermissionTo('delete-boards'))
+        ->deleteJson(route('api.boards.deleteById', ['board' => 99]))
+        ->assertNotFound();
+});
 
-    #[Test]
-    public function user_cannot_delete_board_by_id_without_permissions(): void
-    {
-        $response = $this
-            ->actingAs(User::factory()->create())
-            ->deleteJson(route('api.boards.deleteById', [Board::factory()->create()]));
-        $response->assertForbidden();
-    }
+test('user can update boards', function () {
+    seed(PermissionSeeder::class);
+    $params = [
+        'name' => $this->faker->name,
+        'hex_color' => $this->faker->hexColor(),
+    ];
 
-    #[Test]
-    public function user_gets_404_error_when_he_wants_to_delete_a_board_that_does_not_exist(): void
-    {
-        $this->seed(PermissionSeeder::class);
-
-        $response = $this
-            ->actingAs(User::factory()->create()->givePermissionTo('delete-boards'))
-            ->deleteJson(route('api.boards.deleteById', ['board' => 99]));
-
-        $response->assertNotFound();
-    }
-
-    #[Test]
-    public function user_can_update_boards(): void
-    {
-        $this->seed(PermissionSeeder::class);
-        $params = $this->getParams();
-
-        $response = $this
-            ->actingAs(User::factory()->create()->givePermissionTo('edit-boards'))
-            ->patchJson(route('api.boards.updateById', [Board::factory()->create()]), $params->toArray());
-
-        $response->assertJson(
-            fn (AssertableJson $json) => $json->whereAll($params->toArray())
+    actingAs(User::factory()->create()->givePermissionTo('edit-boards'))
+        ->patchJson(route('api.boards.updateById', [Board::factory()->create()]), $params)
+        ->assertOk()
+        ->assertJson(
+            fn (AssertableJson $json) => $json->whereAll($params)
                 ->etc()
-        )->assertOk();
-    }
+        );
+});
 
-    private function getParams(): Collection
-    {
-        return Collection::make([
-            'name' => $this->faker->name,
-            'hex_color' => $this->faker->hexColor(),
-        ]);
-    }
+test('user cannot update boards without permissions', function () {
+    $params = [
+        'name' => $this->faker->name,
+        'hex_color' => $this->faker->hexColor(),
+    ];
 
-    #[Test]
-    public function user_cannot_update_boards_without_permissions(): void
-    {
-        $params = $this->getParams();
+    actingAs(User::factory()->create())
+        ->patchJson(route('api.boards.updateById', [Board::factory()->create()]), $params)
+        ->assertForbidden();
+});
 
-        $response = $this
-            ->actingAs(User::factory()->create())
-            ->patchJson(route('api.boards.updateById', [Board::factory()->create()]), $params->toArray());
+test('user gets 404 error when he wants update a board that does not exist', function () {
+    seed(PermissionSeeder::class);
 
-        $response->assertForbidden();
-    }
+    actingAs(User::factory()->create()->givePermissionTo('edit-boards'))
+        ->patchJson(route('api.boards.updateById', ['board' => 99]))
+        ->assertNotFound();
+});
 
-    #[Test]
-    public function user_gets_404_error_when_he_wants_update_a_board_that_does_not_exist(): void
-    {
-        $this->seed(PermissionSeeder::class);
+test('user can create boards', function () {
+    seed(PermissionSeeder::class);
+    $params = [
+        'name' => $this->faker->name,
+        'hex_color' => $this->faker->hexColor(),
+    ];
 
-        $response = $this
-            ->actingAs(User::factory()->create()->givePermissionTo('edit-boards'))
-            ->patchJson(route('api.boards.updateById', ['board' => 99]));
-
-        $response->assertNotFound();
-    }
-
-    #[Test]
-    public function user_can_create_boards(): void
-    {
-        $this->seed(PermissionSeeder::class);
-        $params = $this->getParams();
-
-        $response = $this
-            ->actingAs(User::factory()->create()->givePermissionTo('create-boards'))
-            ->postJson(route('api.boards.create'), $params->toArray());
-
-        $response->assertJson(
-            fn (AssertableJson $json) => $json->whereAll($params->toArray())
+    actingAs(User::factory()->create()->givePermissionTo('create-boards'))
+        ->postJson(route('api.boards.create'), $params)
+        ->assertCreated()
+        ->assertJson(
+            fn (AssertableJson $json) => $json->whereAll($params)
                 ->etc()
-        )->assertCreated();
-    }
+        );
+});
 
-    #[Test]
-    public function user_cannot_create_boards_with_incorrect_data(): void
-    {
-        $this->seed(PermissionSeeder::class);
+test('user cannot create boards with incorrect data', function () {
+    seed(PermissionSeeder::class);
 
-        $response = $this
-            ->actingAs(User::factory()->create()->givePermissionTo('create-boards'))
-            ->postJson(route('api.boards.create', []));
-
-        $response->assertJson(
+    actingAs(User::factory()->create()->givePermissionTo('create-boards'))
+        ->postJson(route('api.boards.create'))
+        ->assertUnprocessable()
+        ->assertJson(
             fn (AssertableJson $json) => $json->has('message')
                 ->has('errors')
                 ->whereType('errors', 'array')
@@ -228,53 +177,37 @@ class BoardTest extends TestCase
                 ->has('errors', fn (AssertableJson $json) => $json->hasAll(['name', 'hex_color']))
                 ->has('message')
                 ->etc()
+        );
+});
+
+test('send board as xls and pdf by mail notification', function (string $format) {
+    Notification::fake();
+    seed(PermissionSeeder::class);
+    $board = Board::factory()->create();
+    $user = User::factory()->create()->givePermissionTo('download-boards');
+
+    actingAs($user)
+        ->getJson(route('api.boards.download', ['format' => $format, $board]))
+        ->assertAccepted();
+
+    Notification::assertSentToTimes($user, DownloadedBoard::class);
+})->with([
+    ['format' => 'xls'],
+    ['format' => 'pdf'],
+]);
+
+test('send board by mail is validated', function () {
+    Notification::fake();
+    seed(PermissionSeeder::class);
+    $board = Board::factory()->create();
+    $user = User::factory()->create()->givePermissionTo('download-boards');
+
+    actingAs($user)
+        ->getJson(route('api.boards.download', [$board]))
+        ->assertJson(fn (AssertableJson $json) => $json
+            ->has('message')
+            ->has('errors', fn (AssertableJson $json) => $json->has('format'))
         )->assertUnprocessable();
-    }
 
-    #[Test]
-    #[DataProvider('formatsForBoardNotification')]
-    public function send_board_as_xls_and_pdf_by_mail_notification(string $format): void
-    {
-        Notification::fake();
-
-        $this->seed(PermissionSeeder::class);
-        $board = Board::factory()->create();
-        $user = User::factory()->create()->givePermissionTo('download-boards');
-
-        $this
-            ->actingAs($user)
-            ->getJson(route('api.boards.download', ['format' => $format, $board]))
-            ->assertAccepted();
-
-        Notification::assertSentToTimes($user, DownloadedBoard::class);
-
-    }
-
-    #[Test]
-    public function send_board_by_mail_is_validated(): void
-    {
-        Notification::fake();
-
-        $this->seed(PermissionSeeder::class);
-        $board = Board::factory()->create();
-        $user = User::factory()->create()->givePermissionTo('download-boards');
-
-        $this
-            ->actingAs($user)
-            ->getJson(route('api.boards.download', [$board]))
-            ->assertJson(fn (AssertableJson $json) => $json
-                ->has('message')
-                ->has('errors', fn (AssertableJson $json) => $json->has('format'))
-            )->assertUnprocessable();
-
-        Notification::assertNothingSent();
-    }
-
-    public static function formatsForBoardNotification(): array
-    {
-        return [
-            ['format' => 'xls'],
-            ['format' => 'pdf'],
-        ];
-    }
-}
+    Notification::assertNothingSent();
+});

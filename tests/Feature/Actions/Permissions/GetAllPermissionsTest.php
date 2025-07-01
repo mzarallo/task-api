@@ -2,28 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Actions\Permissions;
-
 use App\Actions\Permissions\GetAllPermissions;
 use Database\Seeders\PermissionSeeder;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Collection;
-use PHPUnit\Framework\Attributes\Test;
 use Spatie\Permission\Models\Permission;
-use Tests\TestCase;
 
-class GetAllPermissionsTest extends TestCase
-{
-    use WithFaker;
+use function Pest\Laravel\seed;
 
-    #[Test]
-    public function it_get_all_permissions(): void
-    {
-        $this->seed(PermissionSeeder::class);
+it('get all permissions', function () {
+    seed(PermissionSeeder::class);
 
-        $response = GetAllPermissions::make()->handle();
+    $response = GetAllPermissions::make()->handle();
 
-        $this->assertInstanceOf(Collection::class, $response);
-        $this->assertContainsOnlyInstancesOf(Permission::class, $response);
-    }
-}
+    expect($response)->toBeInstanceOf(Collection::class)
+        ->and($response)->toContainOnlyInstancesOf(Permission::class);
+});

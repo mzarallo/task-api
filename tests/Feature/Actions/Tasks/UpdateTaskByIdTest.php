@@ -2,34 +2,27 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Actions\Tasks;
-
 use App\Actions\Tasks\UpdateTaskById;
 use App\Data\Services\Tasks\UpdateTaskServiceDto;
 use App\Models\Task;
 use Illuminate\Foundation\Testing\WithFaker;
-use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
 
-class UpdateTaskByIdTest extends TestCase
-{
-    use WithFaker;
+use function Pest\Laravel\assertDatabaseHas;
 
-    #[Test]
-    public function it_update_task_by_id(): void
-    {
-        $task = Task::factory()->create();
-        $params = [
-            'title' => $this->faker->name,
-            'description' => $this->faker->realText,
-        ];
+uses(WithFaker::class);
 
-        $response = UpdateTaskById::make()->handle(
-            $task->id,
-            UpdateTaskServiceDto::from($params)
-        );
+it('update task by id', function () {
+    $task = Task::factory()->create();
+    $params = [
+        'title' => $this->faker->name,
+        'description' => $this->faker->realText,
+    ];
 
-        $this->assertInstanceOf(Task::class, $response);
-        $this->assertDatabaseHas('tasks', $params);
-    }
-}
+    $response = UpdateTaskById::make()->handle(
+        $task->id,
+        UpdateTaskServiceDto::from($params)
+    );
+
+    expect($response)->toBeInstanceOf(Task::class);
+    assertDatabaseHas('tasks', $params);
+});

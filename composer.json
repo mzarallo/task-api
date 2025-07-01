@@ -19,14 +19,16 @@
         "tymon/jwt-auth": "^2.0"
     },
     "require-dev": {
-        "brianium/paratest": "^v7.7.0",
         "fakerphp/faker": "^1.9.1",
         "laravel/pint": "^1.10",
         "laravel/sail": "^1.13",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^8.1",
         "nunomaduro/phpinsights": "^2.0",
-        "phpunit/phpunit": "^12.2.5",
+        "pestphp/pest": "^3.8",
+        "pestphp/pest-plugin-drift": "^3.0",
+        "pestphp/pest-plugin-faker": "^3.0",
+        "pestphp/pest-plugin-laravel": "^3.2",
         "spatie/laravel-ignition": "^2.0"
     },
     "autoload": {
@@ -67,6 +69,7 @@
         "sort-packages": true,
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true,
+            "pestphp/pest-plugin": true,
             "php-http/discovery": true
         }
     },

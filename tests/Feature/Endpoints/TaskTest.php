@@ -2,35 +2,29 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Endpoints;
-
 use App\Models\Board;
 use App\Models\Stage;
 use App\Models\Task;
 use App\Models\User;
 use Database\Seeders\PermissionSeeder;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Collection;
 use Illuminate\Testing\Fluent\AssertableJson;
-use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
 
-class TaskTest extends TestCase
-{
-    use DatabaseMigrations, WithFaker;
+use function Pest\Faker\fake;
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\assertDatabaseMissing;
+use function Pest\Laravel\seed;
 
-    #[Test]
-    public function user_can_get_all_tasks_of_an_specific_stage(): void
-    {
-        $this->seed(PermissionSeeder::class);
-        $board = Board::factory()->has(Stage::factory()->has(Task::factory()->count(3)))->create();
+uses(DatabaseMigrations::class);
 
-        $response = $this
-            ->actingAs(User::factory()->create()->givePermissionTo('list-tasks'))
-            ->getJson(route('api.boards.stages.tasks.all', [$board, $board->stages->first()]));
+test('user can get all tasks of an specific stage', function () {
+    seed(PermissionSeeder::class);
+    $board = Board::factory()->has(Stage::factory()->has(Task::factory()->count(3)))->create();
 
-        $response->assertJson(
+    actingAs(User::factory()->create()->givePermissionTo('list-tasks'))
+        ->getJson(route('api.boards.stages.tasks.all', [$board, $board->stages->first()]))
+        ->assertOk()
+        ->assertJson(
             fn (AssertableJson $json) => $json
                 ->has('links', fn (AssertableJson $json) => $json->hasAll('first', 'last', 'prev', 'next'))
                 ->has('meta', fn (AssertableJson $json) => $json->hasAll('current_page', 'from', 'last_page', 'links', 'path', 'per_page', 'to', 'total')
@@ -58,86 +52,65 @@ class TaskTest extends TestCase
                         'author' => 'array',
                     ])->etc()
                 )
-        )->assertOk();
-    }
+        );
+});
 
-    #[Test]
-    public function user_cannot_get_tasks_without_authorization(): void
-    {
-        $board = Board::factory()->has(Stage::factory()->has(Task::factory()->count(3)))->create();
+test('user cannot get tasks without authorization', function () {
+    $board = Board::factory()->has(Stage::factory()->has(Task::factory()->count(3)))->create();
 
-        $response = $this
-            ->actingAs(User::factory()->create())
-            ->getJson(route('api.boards.stages.tasks.all', [$board, $board->stages->first()]));
+    $response = $this
+        ->actingAs(User::factory()->create())
+        ->getJson(route('api.boards.stages.tasks.all', [$board, $board->stages->first()]));
 
-        $response->assertForbidden();
-    }
+    $response->assertForbidden();
+});
 
-    #[Test]
-    public function user_cannot_list_tasks_if_route_params_are_not_related(): void
-    {
-        $this->seed(PermissionSeeder::class);
-        $board = Board::factory()->has(Stage::factory()->has(Task::factory()->count(3)))->create();
-        $board2 = Board::factory()->has(Stage::factory()->has(Task::factory()->count(3)))->create();
+test('user cannot list tasks if route params are not related', function () {
+    seed(PermissionSeeder::class);
+    $board = Board::factory()->has(Stage::factory()->has(Task::factory()->count(3)))->create();
+    $board2 = Board::factory()->has(Stage::factory()->has(Task::factory()->count(3)))->create();
 
-        $response = $this
-            ->actingAs(User::factory()->create()->givePermissionTo('list-tasks'))
-            ->getJson(route('api.boards.stages.tasks.all', [$board2, $board->stages->first()]));
+    actingAs(User::factory()->create()->givePermissionTo('list-tasks'))
+        ->getJson(route('api.boards.stages.tasks.all', [$board2, $board->stages->first()]))
+        ->assertNotFound();
+});
 
-        $response->assertNotFound();
-    }
+it('user can create task', function () {
+    seed(PermissionSeeder::class);
+    $stage = Stage::factory()->create();
+    $attributes = [
+        'title' => fake()->sentence,
+        'description' => fake()->realText,
+        'start_date' => now()->toDateString(),
+        'end_date' => now()->addWeek()->toDateString(),
+        'tags' => [fake()->word, fake()->word],
+        'order' => fake()->randomNumber(),
+    ];
 
-    public function user_gets_404_error_when_he_wants_to_get_a_board_that_does_not_exist(): void {}
-
-    /** @test  */
-    public function user_can_create_task(): void
-    {
-        $this->seed(PermissionSeeder::class);
-        $stage = Stage::factory()->create();
-        $attributes = $this->getAttributes();
-
-        $response = $this
-            ->actingAs(User::factory()->create()->givePermissionTo('create-tasks'))
-            ->postJson(route('api.boards.stages.tasks.create', [$stage->board, $stage]), $attributes->toArray());
-
-        $response->assertJson(
+    actingAs(User::factory()->create()->givePermissionTo('create-tasks'))
+        ->postJson(route('api.boards.stages.tasks.create', [$stage->board, $stage]), $attributes)
+        ->assertCreated()
+        ->assertJson(
             fn (AssertableJson $json) => $json
                 ->has('data', fn (AssertableJson $json) => $json
-                    ->where('title', $attributes->get('title'))
-                    ->where('description', $attributes->get('description'))
-                    ->where('start_date', $attributes->get('start_date'))
-                    ->where('end_date', $attributes->get('end_date'))
-                    ->where('tags', $attributes->get('tags'))
-                    ->where('order', $attributes->get('order'))
+                    ->where('title', $attributes['title'])
+                    ->where('description', $attributes['description'])
+                    ->where('start_date', $attributes['start_date'])
+                    ->where('end_date', $attributes['end_date'])
+                    ->where('tags', $attributes['tags'])
+                    ->where('order', $attributes['order'])
                     ->etc()
                 )
-        )->assertCreated();
+        );
+});
 
-    }
+test('cannot create task with incorrect data', function () {
+    seed(PermissionSeeder::class);
+    $stage = Stage::factory()->create();
 
-    private function getAttributes(): Collection
-    {
-        return Collection::make([
-            'title' => $this->faker->sentence,
-            'description' => $this->faker->realText,
-            'start_date' => now()->toDateString(),
-            'end_date' => now()->addWeek()->toDateString(),
-            'tags' => [$this->faker->word, $this->faker->word],
-            'order' => $this->faker->randomNumber(),
-        ]);
-    }
-
-    /** @test */
-    public function cannot_create_task_with_incorrect_data(): void
-    {
-        $this->seed(PermissionSeeder::class);
-        $stage = Stage::factory()->create();
-
-        $response = $this
-            ->actingAs(User::factory()->create()->givePermissionTo('create-tasks'))
-            ->postJson(route('api.boards.stages.tasks.create', [$stage->board, $stage]));
-
-        $response->assertJson(
+    actingAs(User::factory()->create()->givePermissionTo('create-tasks'))
+        ->postJson(route('api.boards.stages.tasks.create', [$stage->board, $stage]))
+        ->assertUnprocessable()->assertJson(
             fn (AssertableJson $json) => $json->has('message')
                 ->has('errors')
                 ->has('message')
@@ -147,85 +120,78 @@ class TaskTest extends TestCase
                     'title',
                     'start_date',
                 ]))->etc()
-        )->assertUnprocessable();
-    }
-
-    /** @test  */
-    public function user_cannot_create_task_without_permissions(): void
-    {
-        $this->seed(PermissionSeeder::class);
-        $stage = Stage::factory()->create();
-        $attributes = $this->getAttributes();
-
-        $response = $this
-            ->actingAs(User::factory()->create())
-            ->postJson(route('api.boards.stages.tasks.create', [$stage->board, $stage]), $attributes->toArray());
-
-        $response->assertForbidden();
-    }
-
-    /** @test */
-    public function user_can_delete_task_by_id(): void
-    {
-        $this->seed(PermissionSeeder::class);
-        $task = Task::factory()->create();
-
-        $response = $this
-            ->actingAs(User::factory()->create()->givePermissionTo('delete-tasks'))
-            ->deleteJson(
-                route('api.boards.stages.tasks.deleteById', [$task->stage->board, $task->stage, $task])
-            );
-
-        $response->assertNoContent();
-        $this->assertDatabaseMissing('tasks', ['id' => $task->id]);
-    }
-
-    #[Test]
-    public function user_cannot_delete_tasks_by_id_without_permissions(): void
-    {
-        $this->actingAs(User::factory()->create());
-        $task = Task::factory()->create();
-
-        $response = $this->deleteJson(
-            route('api.boards.stages.tasks.deleteById', [$task->stage->board, $task->stage, $task])
         );
+});
 
-        $response->assertForbidden();
-    }
+it('user cannot create task without permissions', function () {
+    seed(PermissionSeeder::class);
+    $stage = Stage::factory()->create();
+    $attributes = [
+        'title' => fake()->sentence,
+        'description' => fake()->realText,
+        'start_date' => now()->toDateString(),
+        'end_date' => now()->addWeek()->toDateString(),
+        'tags' => [fake()->word, fake()->word],
+        'order' => fake()->randomNumber(),
+    ];
 
-    #[Test]
-    public function user_can_update_tasks(): void
-    {
-        $this->seed(PermissionSeeder::class);
-        $task = Task::factory()
-            ->state(['start_date' => now()->subWeeks(2), 'end_date' => now()->subWeek()])
-            ->create();
-        $attributes = $this->getAttributes()->only(['title', 'description', 'start_date', 'end_date']);
+    actingAs(User::factory()->create())
+        ->postJson(route('api.boards.stages.tasks.create', [$stage->board, $stage]), $attributes)
+        ->assertForbidden();
+});
 
-        $response = $this
-            ->actingAs(User::factory()->create()->givePermissionTo('edit-tasks'))
-            ->patchJson(
-                route('api.boards.stages.tasks.updateById', [$task->stage->board, $task->stage, $task]),
-                $attributes->toArray()
-            );
+test('user can delete task by id', function () {
+    seed(PermissionSeeder::class);
+    $task = Task::factory()->create();
 
-        $response->assertJson(
-            fn (AssertableJson $json) => $json->where('title', $attributes->get('title'))
-                ->where('description', $attributes->get('description'))
-                ->where('start_date', $attributes->get('start_date'))
-                ->where('end_date', $attributes->get('end_date'))
+    actingAs(User::factory()->create()->givePermissionTo('delete-tasks'))
+        ->deleteJson(
+            route('api.boards.stages.tasks.deleteById', [$task->stage->board, $task->stage, $task])
+        )->assertNoContent();
+
+    assertDatabaseMissing('tasks', ['id' => $task->id]);
+});
+
+test('user cannot delete tasks by id without permissions', function () {
+    $task = Task::factory()->create();
+
+    actingAs(User::factory()->create())->deleteJson(
+        route('api.boards.stages.tasks.deleteById', [$task->stage->board, $task->stage, $task])
+    )->assertForbidden();
+});
+
+test('user can update tasks', function () {
+    seed(PermissionSeeder::class);
+    $task = Task::factory()
+        ->state(['start_date' => now()->subWeeks(2), 'end_date' => now()->subWeek()])
+        ->create();
+    $attributes = [
+        'title' => fake()->sentence,
+        'description' => fake()->realText,
+        'start_date' => now()->toDateString(),
+        'end_date' => now()->addWeek()->toDateString(),
+
+    ];
+
+    actingAs(User::factory()->create()->givePermissionTo('edit-tasks'))
+        ->patchJson(
+            route('api.boards.stages.tasks.updateById', [$task->stage->board, $task->stage, $task]),
+            $attributes
+        )->assertOk()
+        ->assertJson(
+            fn (AssertableJson $json) => $json
+                ->where('title', $attributes['title'])
+                ->where('description', $attributes['description'])
+                ->where('start_date', $attributes['start_date'])
+                ->where('end_date', $attributes['end_date'])
                 ->etc()
-        )->assertOk();
-    }
+        );
+});
 
-    #[Test]
-    public function user_cannot_update_tasks_without_permissions(): void
-    {
-        $this->actingAs(User::factory()->create());
-        $task = Task::factory()->create();
+test('user cannot update tasks without permissions', function () {
+    $task = Task::factory()->create();
 
-        $response = $this->patchJson(route('api.boards.stages.tasks.updateById', [$task->stage->board, $task->stage, $task]));
-
-        $response->assertForbidden();
-    }
-}
+    actingAs(User::factory()->create())
+        ->patchJson(route('api.boards.stages.tasks.updateById', [$task->stage->board, $task->stage, $task]))
+        ->assertForbidden();
+});

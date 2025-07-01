@@ -2,34 +2,27 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Actions\Users;
-
 use App\Actions\Users\UpdateUserById;
 use App\Data\Services\Users\UpdateUserByIdServiceDto;
 use App\Models\User;
 use Illuminate\Foundation\Testing\WithFaker;
-use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
 
-class UpdateUserByIdTest extends TestCase
-{
-    use WithFaker;
+use function Pest\Laravel\assertDatabaseHas;
 
-    #[Test]
-    public function it_update_user_by_id(): void
-    {
-        $user = User::factory()->create();
-        $params = [
-            'name' => $this->faker->name,
-            'last_name' => $this->faker->lastName,
-        ];
+uses(WithFaker::class);
 
-        $response = UpdateUserById::make()->handle(
-            $user->id,
-            UpdateUserByIdServiceDto::from($params)
-        );
+it('update user by id', function () {
+    $user = User::factory()->create();
+    $params = [
+        'name' => $this->faker->name,
+        'last_name' => $this->faker->lastName,
+    ];
 
-        $this->assertInstanceOf(User::class, $response);
-        $this->assertDatabaseHas('users', $params);
-    }
-}
+    $response = UpdateUserById::make()->handle(
+        $user->id,
+        UpdateUserByIdServiceDto::from($params)
+    );
+
+    expect($response)->toBeInstanceOf(User::class);
+    assertDatabaseHas('users', $params);
+});

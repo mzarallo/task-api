@@ -2,43 +2,33 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Actions\Boards;
-
 use App\Actions\Boards\DeleteBoardById;
 use App\Data\Services\Boards\DeleteBoardByIdServiceDto;
 use App\Models\Board;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\WithFaker;
-use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
 
-class DeleteBoardByIdTest extends TestCase
-{
-    use WithFaker;
+use function Pest\Laravel\assertDatabaseEmpty;
 
-    #[Test]
-    public function it_delete_a_board(): void
-    {
-        $board = Board::factory()->create();
+uses(WithFaker::class);
 
-        $response = DeleteBoardById::make()->handle(
-            DeleteBoardByIdServiceDto::from([
-                'board_id' => $board->id,
-            ])
-        );
+it('delete a board', function () {
+    $board = Board::factory()->create();
 
-        $this->assertTrue($response);
-        $this->assertDatabaseEmpty('boards');
-    }
+    $response = DeleteBoardById::make()->handle(
+        DeleteBoardByIdServiceDto::from([
+            'board_id' => $board->id,
+        ])
+    );
 
-    #[Test]
-    public function it_throws_an_exception_for_board_not_found()
-    {
-        $this->expectException(ModelNotFoundException::class);
-        DeleteBoardById::make()->handle(
-            DeleteBoardByIdServiceDto::from([
-                'board_id' => $this->faker->randomNumber(),
-            ])
-        );
-    }
-}
+    expect($response)->toBeTrue();
+    assertDatabaseEmpty('boards');
+});
+
+it('throws an exception for board not found', function () {
+    DeleteBoardById::make()->handle(
+        DeleteBoardByIdServiceDto::from([
+            'board_id' => $this->faker->randomNumber(),
+        ])
+    );
+})->throws(ModelNotFoundException::class);

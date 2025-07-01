@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Actions\Users;
-
 use App\Actions\Tasks\GetAllTasks;
 use App\Actions\Users\GetAllUsers;
 use App\Data\Services\Tasks\GetAllTaskServiceDto;
@@ -13,61 +11,46 @@ use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Notification;
-use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
 
-class GetAllUsersTest extends TestCase
-{
-    #[Test]
-    public function it_get_users_paginated(): void
-    {
-        User::factory()->count(2)->create();
+it('get users paginated', function () {
+    User::factory()->count(2)->create();
 
-        $response = GetAllUsers::make()->handle(
-            GetAllUsersServiceDto::from([
-                'paginated' => true,
-            ])
-        );
+    $response = GetAllUsers::make()->handle(
+        GetAllUsersServiceDto::from([
+            'paginated' => true,
+        ])
+    );
 
-        $this->assertCount(2, $response->items());
-        $this->assertInstanceOf(LengthAwarePaginator::class, $response);
-        $this->assertContainsOnlyInstancesOf(User::class, $response->items());
-    }
+    expect($response->items())->toHaveCount(2)
+        ->and($response)->toBeInstanceOf(LengthAwarePaginator::class)
+        ->and($response->items())->toContainOnlyInstancesOf(User::class);
+});
 
-    /**
-     * @test
-     */
-    public function it_get_users_as_collection(): void
-    {
-        User::factory()->count(2)->create();
+it('get users as collection', function () {
+    User::factory()->count(2)->create();
 
-        $response = GetAllUsers::make()->handle(
-            GetAllUsersServiceDto::from([
-                'paginated' => false,
-            ])
-        );
+    $response = GetAllUsers::make()->handle(
+        GetAllUsersServiceDto::from([
+            'paginated' => false,
+        ])
+    );
 
-        $this->assertCount(2, $response);
-        $this->assertInstanceOf(Collection::class, $response);
-        $this->assertContainsOnlyInstancesOf(User::class, $response);
-    }
+    expect($response)->toHaveCount(2)
+        ->and($response)->toBeInstanceOf(Collection::class)
+        ->and($response)->toContainOnlyInstancesOf(User::class);
+});
 
-    /**
-     * @test
-     */
-    public function it_get_tasks_with_relations_loaded(): void
-    {
-        Task::factory()->count(2)->create();
-        Notification::fake();
+it('get tasks with relations loaded', function () {
+    Task::factory()->count(2)->create();
+    Notification::fake();
 
-        $response = GetAllTasks::make()->handle(
-            GetAllTaskServiceDto::from([
-                'relations' => ['author', 'stage'],
-                'paginated' => true,
-            ])
-        );
+    $response = GetAllTasks::make()->handle(
+        GetAllTaskServiceDto::from([
+            'relations' => ['author', 'stage'],
+            'paginated' => true,
+        ])
+    );
 
-        $this->assertTrue($response->offsetGet(0)->relationLoaded('author'));
-        $this->assertTrue($response->offsetGet(0)->relationLoaded('stage'));
-    }
-}
+    expect($response->offsetGet(0)->relationLoaded('author'))->toBeTrue()
+        ->and($response->offsetGet(0)->relationLoaded('stage'))->toBeTrue();
+});

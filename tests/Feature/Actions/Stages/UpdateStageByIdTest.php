@@ -2,34 +2,27 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Actions\Stages;
-
 use App\Actions\Stages\UpdateStageById;
 use App\Data\Services\Stages\UpdateStageByIdServiceDto;
 use App\Models\Stage;
 use Illuminate\Foundation\Testing\WithFaker;
-use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
 
-class UpdateStageByIdTest extends TestCase
-{
-    use WithFaker;
+use function Pest\Laravel\assertDatabaseHas;
 
-    #[Test]
-    public function it_update_stage_by_id(): void
-    {
-        $stage = Stage::factory()->create();
-        $params = [
-            'name' => $this->faker->name,
-            'hex_color' => $this->faker->hexColor,
-        ];
+uses(WithFaker::class);
 
-        $response = UpdateStageById::make()->handle(
-            $stage->id,
-            UpdateStageByIdServiceDto::from($params)
-        );
+it('update stage by id', function () {
+    $stage = Stage::factory()->create();
+    $params = [
+        'name' => $this->faker->name,
+        'hex_color' => $this->faker->hexColor,
+    ];
 
-        $this->assertInstanceOf(Stage::class, $response);
-        $this->assertDatabaseHas('stages', $params);
-    }
-}
+    $response = UpdateStageById::make()->handle(
+        $stage->id,
+        UpdateStageByIdServiceDto::from($params)
+    );
+
+    expect($response)->toBeInstanceOf(Stage::class);
+    assertDatabaseHas('stages', $params);
+});
