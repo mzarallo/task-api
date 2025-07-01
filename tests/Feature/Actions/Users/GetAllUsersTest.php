@@ -13,13 +13,12 @@ use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Notification;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class GetAllUsersTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function it_get_users_paginated(): void
     {
         User::factory()->count(2)->create();

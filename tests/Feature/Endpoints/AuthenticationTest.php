@@ -8,15 +8,14 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\Fluent\AssertableJson;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
 {
     use DatabaseMigrations, WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_obtain_jwt_token_with_correct_credentials(): void
     {
         $user = User::factory()->create();
@@ -39,9 +38,7 @@ class AuthenticationTest extends TestCase
         )->assertStatus(200);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_get_jwt_token_with_incorrect_credentials(): void
     {
         $response = $this->postJson(route('api.authentication.login'), [

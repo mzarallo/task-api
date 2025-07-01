@@ -10,15 +10,14 @@ use App\Models\Board;
 use App\Models\Stage;
 use App\Models\User;
 use Illuminate\Foundation\Testing\WithFaker;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class CreateStageTest extends TestCase
 {
     use WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_create_a_stage(): void
     {
         $board = Board::factory()->create();

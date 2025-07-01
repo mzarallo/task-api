@@ -7,13 +7,12 @@ namespace Tests\Feature\Actions\Boards;
 use App\Actions\Boards\GetBoardById;
 use App\Data\Services\Boards\GetBoardByIdServiceDto;
 use App\Models\Board;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class GetBoardByIdTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function it_get_board_by_id(): void
     {
         $board = Board::factory()->create();
@@ -28,9 +27,7 @@ class GetBoardByIdTest extends TestCase
         $this->assertEquals($board->id, $response->id);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_get_board_by_id_with_relations_loaded(): void
     {
         $board = Board::factory()->create();

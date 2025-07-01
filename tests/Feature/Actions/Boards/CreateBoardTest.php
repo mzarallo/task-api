@@ -9,15 +9,14 @@ use App\Data\Services\Boards\CreateBoardServiceDto;
 use App\Models\Board;
 use App\Models\User;
 use Illuminate\Foundation\Testing\WithFaker;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class CreateBoardTest extends TestCase
 {
     use WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_create_a_board(): void
     {
         $response = CreateBoard::make()->handle(

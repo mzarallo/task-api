@@ -10,15 +10,14 @@ use App\Models\Stage;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\WithFaker;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class CreateTaskTest extends TestCase
 {
     use WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_create_a_task(): void
     {
         $response = CreateTask::make()->handle(

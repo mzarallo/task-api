@@ -9,15 +9,14 @@ use App\Mail\CredentialsUserMail;
 use App\Models\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Mail;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class SendCredentialsEmailTest extends TestCase
 {
     use WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_send_credentials_to_user(): void
     {
         Mail::fake();

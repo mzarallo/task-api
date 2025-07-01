@@ -10,13 +10,12 @@ use App\Models\Board;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Notification;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class GetAllBoardsTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function it_get_boards_paginated(): void
     {
         Board::factory()->count(2)->create();
@@ -33,9 +32,7 @@ class GetAllBoardsTest extends TestCase
         $this->assertContainsOnlyInstancesOf(Board::class, $response->items());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_get_boards_as_collection(): void
     {
         Board::factory()->count(2)->create();
@@ -52,9 +49,7 @@ class GetAllBoardsTest extends TestCase
         $this->assertContainsOnlyInstancesOf(Board::class, $response);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_get_boards_with_relations_loaded(): void
     {
         Board::factory()->create();

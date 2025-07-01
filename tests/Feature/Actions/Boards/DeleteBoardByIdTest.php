@@ -9,15 +9,14 @@ use App\Data\Services\Boards\DeleteBoardByIdServiceDto;
 use App\Models\Board;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\WithFaker;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class DeleteBoardByIdTest extends TestCase
 {
     use WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_delete_a_board(): void
     {
         $board = Board::factory()->create();
@@ -32,9 +31,7 @@ class DeleteBoardByIdTest extends TestCase
         $this->assertDatabaseEmpty('boards');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_throws_an_exception_for_board_not_found()
     {
         $this->expectException(ModelNotFoundException::class);

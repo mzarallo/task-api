@@ -8,6 +8,7 @@ use App\Models\User;
 use Database\Seeders\PermissionSeeder;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Testing\Fluent\AssertableJson;
+use PHPUnit\Framework\Attributes\Test;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
@@ -15,9 +16,7 @@ class PermissionTest extends TestCase
 {
     use DatabaseMigrations;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_obtain_all_permissions(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -43,9 +42,7 @@ class PermissionTest extends TestCase
         )->assertOk();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_get_permissions_without_authorization(): void
     {
         $this->actingAs(User::factory()->create());

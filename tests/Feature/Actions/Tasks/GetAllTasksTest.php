@@ -9,13 +9,12 @@ use App\Data\Services\Tasks\GetAllTaskServiceDto;
 use App\Models\Task;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class GetAllTasksTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function it_get_tasks_paginated(): void
     {
         Task::factory()->count(2)->create();
@@ -32,9 +31,7 @@ class GetAllTasksTest extends TestCase
         $this->assertContainsOnlyInstancesOf(Task::class, $response->items());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_get_tasks_as_collection(): void
     {
         Task::factory()->count(2)->create();
@@ -51,9 +48,7 @@ class GetAllTasksTest extends TestCase
         $this->assertContainsOnlyInstancesOf(Task::class, $response);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_get_tasks_with_relations_loaded(): void
     {
         Task::factory()->count(2)->create();

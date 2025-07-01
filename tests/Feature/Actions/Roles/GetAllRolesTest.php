@@ -10,6 +10,7 @@ use Database\Seeders\RoleSeeder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Collection;
+use PHPUnit\Framework\Attributes\Test;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -17,9 +18,7 @@ class GetAllRolesTest extends TestCase
 {
     use WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_get_all_roles_as_collection(): void
     {
         $this->seed(RoleSeeder::class);
@@ -34,9 +33,7 @@ class GetAllRolesTest extends TestCase
         $this->assertContainsOnlyInstancesOf(Role::class, $response);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_get_all_roles_as_pagination(): void
     {
         $this->seed(RoleSeeder::class);
@@ -51,9 +48,7 @@ class GetAllRolesTest extends TestCase
         $this->assertContainsOnlyInstancesOf(Role::class, $response->items());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_get_all_roles_sorted(): void
     {
         Role::query()->create(['name' => 'AAA']);

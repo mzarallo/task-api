@@ -8,15 +8,14 @@ use App\Actions\Tasks\GetTaskById;
 use App\Data\Services\Tasks\GetTaskByIdServiceDto;
 use App\Models\Task;
 use Illuminate\Foundation\Testing\WithFaker;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class GetTaskByIdTest extends TestCase
 {
     use WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_get_task_by_id(): void
     {
         $task = Task::factory()->create();
@@ -31,9 +30,7 @@ class GetTaskByIdTest extends TestCase
         $this->assertEquals($task->id, $response->id);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_get_task_by_id_with_relations_loaded(): void
     {
         $task = Task::factory()->create();

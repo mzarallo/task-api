@@ -8,6 +8,8 @@ use App\Actions\Users\CreateUser;
 use App\Data\Services\Users\CreateUserServiceDto;
 use App\Models\User;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Mail;
+use PHPUnit\Framework\Attributes\Test;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -15,11 +17,10 @@ class CreateUserTest extends TestCase
 {
     use WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_create_a_user(): void
     {
+        Mail::fake();
         Role::query()->create(['name' => 'Admin']);
 
         $response = CreateUser::make()->handle(

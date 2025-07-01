@@ -13,15 +13,14 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Testing\Fluent\AssertableJson;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class StageTest extends TestCase
 {
     use DatabaseMigrations, WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_get_all_stages(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -54,9 +53,7 @@ class StageTest extends TestCase
         )->assertOk();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_get_stages_without_authorization(): void
     {
         $this->actingAs(User::factory()->create());
@@ -67,9 +64,7 @@ class StageTest extends TestCase
         $response->assertForbidden();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_get_single_stage_by_id(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -104,9 +99,7 @@ class StageTest extends TestCase
         )->assertOk();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_gets_404_error_when_he_wants_to_get_a_stage_that_does_not_exist(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -118,9 +111,7 @@ class StageTest extends TestCase
         $response->assertNotFound();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_get_single_stage_by_id_without_permission(): void
     {
         $this->actingAs(User::factory()->create());
@@ -131,9 +122,7 @@ class StageTest extends TestCase
         $response->assertForbidden();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_delete_stage_by_id(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -147,9 +136,7 @@ class StageTest extends TestCase
         $this->assertDatabaseMissing('stages', ['id' => $stage->id]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_delete_stage_by_id_without_permissions(): void
     {
         $this->actingAs(User::factory()->create());
@@ -160,9 +147,7 @@ class StageTest extends TestCase
         $response->assertForbidden();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_update_stages(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -195,9 +180,7 @@ class StageTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_update_stages_without_permissions(): void
     {
         $this->actingAs(User::factory()->create());
@@ -208,9 +191,7 @@ class StageTest extends TestCase
         $response->assertForbidden();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_create_stages(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -233,9 +214,7 @@ class StageTest extends TestCase
         )->assertCreated();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_create_stages_with_incorrect_data(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -260,9 +239,7 @@ class StageTest extends TestCase
         )->assertUnprocessable();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_create_stages_without_permissions(): void
     {
         $board = Board::factory()->create();

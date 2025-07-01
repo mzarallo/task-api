@@ -7,13 +7,12 @@ namespace Tests\Feature\Actions\Auth;
 use App\Actions\Auth\GetJwtTokenForUser;
 use App\Models\User;
 use Illuminate\Auth\AuthenticationException;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class GetJwtTokenTest extends TestCase
 {
-    /** @test
-     * @throws AuthenticationException
-     */
+    #[Test]
     public function it_returns_a_jwt_token_for_a_valid_login()
     {
         $user = User::factory()->create();
@@ -29,9 +28,7 @@ class GetJwtTokenTest extends TestCase
         $this->assertIsInt($response->expires_in);
     }
 
-    /** @test
-     * @throws AuthenticationException
-     */
+    #[Test]
     public function it_throws_an_exception_for_an_invalid_login()
     {
         $user = User::factory()->create();

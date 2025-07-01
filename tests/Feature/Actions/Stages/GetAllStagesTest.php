@@ -11,13 +11,12 @@ use App\Models\Stage;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Notification;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class GetAllStagesTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function it_get_stages_paginated(): void
     {
         Notification::fake();

@@ -8,15 +8,14 @@ use App\Actions\Users\GetUserById;
 use App\Data\Services\Users\GetUserByIdServiceDto;
 use App\Models\User;
 use Illuminate\Foundation\Testing\WithFaker;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class GetUserByIdTest extends TestCase
 {
     use WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_get_user_by_id(): void
     {
         $user = User::factory()->create();

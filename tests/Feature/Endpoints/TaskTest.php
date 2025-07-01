@@ -13,15 +13,14 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Collection;
 use Illuminate\Testing\Fluent\AssertableJson;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class TaskTest extends TestCase
 {
     use DatabaseMigrations, WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_get_all_tasks_of_an_specific_stage(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -62,9 +61,7 @@ class TaskTest extends TestCase
         )->assertOk();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_get_tasks_without_authorization(): void
     {
         $board = Board::factory()->has(Stage::factory()->has(Task::factory()->count(3)))->create();
@@ -76,9 +73,7 @@ class TaskTest extends TestCase
         $response->assertForbidden();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_list_tasks_if_route_params_are_not_related(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -187,9 +182,7 @@ class TaskTest extends TestCase
         $this->assertDatabaseMissing('tasks', ['id' => $task->id]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_delete_tasks_by_id_without_permissions(): void
     {
         $this->actingAs(User::factory()->create());
@@ -202,9 +195,7 @@ class TaskTest extends TestCase
         $response->assertForbidden();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_update_tasks(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -229,9 +220,7 @@ class TaskTest extends TestCase
         )->assertOk();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_update_tasks_without_permissions(): void
     {
         $this->actingAs(User::factory()->create());

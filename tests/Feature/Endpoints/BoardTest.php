@@ -13,15 +13,15 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Testing\Fluent\AssertableJson;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class BoardTest extends TestCase
 {
     use DatabaseMigrations, WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_get_all_boards(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -51,9 +51,7 @@ class BoardTest extends TestCase
         )->assertOk();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_get_boards_without_authorization(): void
     {
         $response = $this
@@ -63,9 +61,7 @@ class BoardTest extends TestCase
         $response->assertForbidden();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_get_single_board_by_id(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -94,9 +90,7 @@ class BoardTest extends TestCase
         )->assertOk();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_gets_404_error_when_he_wants_to_get_a_board_that_does_not_exist(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -108,9 +102,7 @@ class BoardTest extends TestCase
         $response->assertNotFound();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_get_single_board_by_id_without_permission(): void
     {
         $response = $this
@@ -120,9 +112,7 @@ class BoardTest extends TestCase
         $response->assertForbidden();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_delete_board_by_id(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -136,9 +126,7 @@ class BoardTest extends TestCase
         $this->assertDatabaseMissing('boards', ['id' => $board->id]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_delete_board_by_id_without_permissions(): void
     {
         $response = $this
@@ -147,9 +135,7 @@ class BoardTest extends TestCase
         $response->assertForbidden();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_gets_404_error_when_he_wants_to_delete_a_board_that_does_not_exist(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -161,9 +147,7 @@ class BoardTest extends TestCase
         $response->assertNotFound();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_update_boards(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -187,9 +171,7 @@ class BoardTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_update_boards_without_permissions(): void
     {
         $params = $this->getParams();
@@ -201,9 +183,7 @@ class BoardTest extends TestCase
         $response->assertForbidden();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_gets_404_error_when_he_wants_update_a_board_that_does_not_exist(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -215,9 +195,7 @@ class BoardTest extends TestCase
         $response->assertNotFound();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_create_boards(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -233,9 +211,7 @@ class BoardTest extends TestCase
         )->assertCreated();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_create_boards_with_incorrect_data(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -255,11 +231,8 @@ class BoardTest extends TestCase
         )->assertUnprocessable();
     }
 
-    /**
-     * @test
-     *
-     * @dataProvider formatsForBoardNotification
-     */
+    #[Test]
+    #[DataProvider('formatsForBoardNotification')]
     public function send_board_as_xls_and_pdf_by_mail_notification(string $format): void
     {
         Notification::fake();
@@ -277,9 +250,7 @@ class BoardTest extends TestCase
 
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function send_board_by_mail_is_validated(): void
     {
         Notification::fake();
@@ -299,7 +270,7 @@ class BoardTest extends TestCase
         Notification::assertNothingSent();
     }
 
-    private function formatsForBoardNotification(): array
+    public static function formatsForBoardNotification(): array
     {
         return [
             ['format' => 'xls'],

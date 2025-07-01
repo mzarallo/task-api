@@ -9,13 +9,12 @@ use App\Data\Services\Stages\GetOrderServiceDto;
 use App\Models\Board;
 use App\Models\Stage;
 use Illuminate\Database\Eloquent\Factories\Sequence;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class GetOrderTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function it_get_correct_order_when_there_are_no_stages(): void
     {
         $board = Board::factory()->create();
@@ -31,6 +30,7 @@ class GetOrderTest extends TestCase
         $this->assertEquals(1, $response);
     }
 
+    #[Test]
     public function test_it_get_correct_order_when_there_are_stages(): void
     {
         $board = Board::factory()->has(

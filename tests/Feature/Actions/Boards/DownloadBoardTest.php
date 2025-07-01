@@ -11,17 +11,16 @@ use App\Models\User;
 use App\Notifications\Boards\DownloadedBoard;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Notification;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class DownloadBoardTest extends TestCase
 {
     use WithFaker;
 
-    /**
-     * @test
-     *
-     * @dataProvider formats
-     */
+    #[Test]
+    #[DataProvider('formats')]
     public function it_send_board_by_mail_in_different_formats(string $format): void
     {
         $user = User::factory()->create();
@@ -39,7 +38,7 @@ class DownloadBoardTest extends TestCase
         Notification::assertSentToTimes($user, DownloadedBoard::class);
     }
 
-    private function formats(): array
+    public static function formats(): array
     {
         return [
             ['xls'],

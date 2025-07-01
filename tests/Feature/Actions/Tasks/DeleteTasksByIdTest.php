@@ -9,15 +9,14 @@ use App\Data\Services\Tasks\DeleteTaskByIdServiceDto;
 use App\Models\Task;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\WithFaker;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class DeleteTasksByIdTest extends TestCase
 {
     use WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_delete_a_task(): void
     {
         $task = Task::factory()->create();
@@ -32,9 +31,7 @@ class DeleteTasksByIdTest extends TestCase
         $this->assertDatabaseEmpty('tasks');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_throws_an_exception_for_task_not_found()
     {
         $this->expectException(ModelNotFoundException::class);

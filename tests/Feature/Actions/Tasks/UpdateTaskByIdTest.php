@@ -8,15 +8,14 @@ use App\Actions\Tasks\UpdateTaskById;
 use App\Data\Services\Tasks\UpdateTaskServiceDto;
 use App\Models\Task;
 use Illuminate\Foundation\Testing\WithFaker;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class UpdateTaskByIdTest extends TestCase
 {
     use WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_update_task_by_id(): void
     {
         $task = Task::factory()->create();

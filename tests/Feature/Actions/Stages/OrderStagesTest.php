@@ -9,13 +9,12 @@ use App\Models\Board;
 use App\Models\Stage;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Support\Collection;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class OrderStagesTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function it_order_stages(): void
     {
         $board = Board::factory()->has(

@@ -8,15 +8,14 @@ use App\Actions\Users\UpdateUserById;
 use App\Data\Services\Users\UpdateUserByIdServiceDto;
 use App\Models\User;
 use Illuminate\Foundation\Testing\WithFaker;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class UpdateUserByIdTest extends TestCase
 {
     use WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_update_user_by_id(): void
     {
         $user = User::factory()->create();

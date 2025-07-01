@@ -8,15 +8,14 @@ use App\Actions\Stages\UpdateStageById;
 use App\Data\Services\Stages\UpdateStageByIdServiceDto;
 use App\Models\Stage;
 use Illuminate\Foundation\Testing\WithFaker;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class UpdateStageByIdTest extends TestCase
 {
     use WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_update_stage_by_id(): void
     {
         $stage = Stage::factory()->create();

@@ -5,15 +5,14 @@ declare(strict_types=1);
 namespace Tests\Feature\Actions\Auth;
 
 use App\Actions\Auth\RefreshToken;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class RefreshTokenTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function it_return_a_fresh_token(): void
     {
         JWTAuth::partialMock()->shouldReceive('getToken')->andReturn('old_token');
@@ -31,9 +30,7 @@ class RefreshTokenTest extends TestCase
         $this->assertIsInt($response->expires_in);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_throws_exception_if_token_doesnt_exist(): void
     {
         $this->expectException(JWTException::class);

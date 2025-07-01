@@ -9,15 +9,14 @@ use App\Data\Services\Stages\DeleteStageByIdServiceDto;
 use App\Models\Stage;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\WithFaker;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class DeleteStageByIdTest extends TestCase
 {
     use WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_delete_a_stage(): void
     {
         $stage = Stage::factory()->create();

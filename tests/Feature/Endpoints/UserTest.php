@@ -14,6 +14,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Testing\Fluent\AssertableJson;
+use PHPUnit\Framework\Attributes\Test;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -21,9 +22,7 @@ class UserTest extends TestCase
 {
     use DatabaseMigrations, WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_get_all_users_paginated(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -57,9 +56,7 @@ class UserTest extends TestCase
         )->assertOk();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_get_users_without_authorization(): void
     {
         $response = $this
@@ -69,9 +66,7 @@ class UserTest extends TestCase
         $response->assertForbidden();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_get_single_user_by_id(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -103,9 +98,7 @@ class UserTest extends TestCase
         )->assertOk();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_gets_404_error_when_he_wants_to_get_a_user_that_does_not_exist(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -117,9 +110,7 @@ class UserTest extends TestCase
         $response->assertNotFound();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_get_single_user_by_id_without_permission(): void
     {
         $user = User::factory()->create();
@@ -131,9 +122,7 @@ class UserTest extends TestCase
         $response->assertForbidden();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_delete_user_by_id(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -147,9 +136,7 @@ class UserTest extends TestCase
         $this->assertDatabaseMissing('users', ['id' => $user->id]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_delete_user_by_id_without_permissions(): void
     {
         $user = User::factory()->create();
@@ -161,9 +148,7 @@ class UserTest extends TestCase
         $response->assertForbidden();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_gets_404_error_when_he_wants_to_delete_a_user_that_does_not_exist(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -175,9 +160,7 @@ class UserTest extends TestCase
         $response->assertStatus(404);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_update_users(): void
     {
         $this->seed(RoleSeeder::class);
@@ -213,9 +196,7 @@ class UserTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_update_users_without_permissions(): void
     {
         $user = User::factory()->create();
@@ -227,9 +208,7 @@ class UserTest extends TestCase
         $response->assertForbidden();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_gets_404_error_when_he_wants_update_a_user_that_does_not_exist(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -241,9 +220,7 @@ class UserTest extends TestCase
         $response->assertNotFound();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_create_users(): void
     {
         Mail::fake();
@@ -267,9 +244,7 @@ class UserTest extends TestCase
         Mail::assertSent(CredentialsUserMail::class);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_create_users_with_incorrect_data(): void
     {
         $this->seed(PermissionSeeder::class);

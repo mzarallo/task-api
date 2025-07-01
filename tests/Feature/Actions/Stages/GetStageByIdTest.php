@@ -7,13 +7,12 @@ namespace Tests\Feature\Actions\Stages;
 use App\Actions\Stages\GetStageById;
 use App\Data\Services\Stages\GetStageByIdServiceDto;
 use App\Models\Stage;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class GetStageByIdTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function it_get_stage_by_id(): void
     {
         $stage = Stage::factory()->create();
@@ -28,9 +27,7 @@ class GetStageByIdTest extends TestCase
         $this->assertEquals($stage->id, $response->id);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_get_stage_by_id_with_relations_loaded(): void
     {
         $stage = Stage::factory()->create();

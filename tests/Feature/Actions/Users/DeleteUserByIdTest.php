@@ -9,15 +9,14 @@ use App\Data\Services\Users\DeleteUserByIdServiceDto;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\WithFaker;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class DeleteUserByIdTest extends TestCase
 {
     use WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_delete_user_by_id(): void
     {
         $user = User::factory()->create();

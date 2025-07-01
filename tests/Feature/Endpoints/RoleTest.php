@@ -9,15 +9,14 @@ use Database\Seeders\PermissionSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Testing\Fluent\AssertableJson;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class RoleTest extends TestCase
 {
     use DatabaseMigrations;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_obtain_all_roles(): void
     {
         $this->seed(RoleSeeder::class);
@@ -43,9 +42,7 @@ class RoleTest extends TestCase
         )->assertOk();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_get_roles_without_authorization(): void
     {
         $this->actingAs(User::factory()->create());

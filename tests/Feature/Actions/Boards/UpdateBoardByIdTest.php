@@ -8,15 +8,14 @@ use App\Actions\Boards\UpdateBoardById;
 use App\Data\Services\Boards\UpdateBoardServiceDto;
 use App\Models\Board;
 use Illuminate\Foundation\Testing\WithFaker;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class UpdateBoardByIdTest extends TestCase
 {
     use WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_update_board_by_id(): void
     {
         $board = Board::factory()->create();
