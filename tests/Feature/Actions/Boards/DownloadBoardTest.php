@@ -13,7 +13,7 @@ use Spatie\Permission\Models\Permission;
 it('send board by mail in different formats', function (string $format) {
     $user = User::factory()->create();
     $board = Board::factory()->create();
-    Permission::create(['name' => 'download-boards']);
+    Permission::create(['name' => 'download-boards', 'category' => 'Boards']);
     $user->givePermissionTo('download-boards');
 
     Notification::fake();
