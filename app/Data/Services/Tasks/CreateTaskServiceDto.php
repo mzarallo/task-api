@@ -22,9 +22,9 @@ class CreateTaskServiceDto extends Data
         public string $title,
         #[Nullable, StringType]
         public string|Optional $description,
-        #[Required, Date, BeforeOrEqual('start_date')]
+        #[Required, Date, BeforeOrEqual('end_date')]
         public string $start_date,
-        #[Nullable, Date, AfterOrEqual('end_date')]
+        #[Nullable, Date, AfterOrEqual('start_date')]
         public ?string $end_date,
         #[Nullable, ArrayType]
         public ?array $tags,

@@ -44,15 +44,21 @@ class DownloadBoard
     public function handle(DownloadBoardServiceDto $dto): void
     {
         $this->getBoard($dto->board);
+
+        $user = $this->getUser($dto->user);
+
+        if ($user->cannot('download', $this->board)) {
+            abort(403);
+        }
+
         $this->getFile($dto->format);
 
-        $this->getUser($dto->user)->notify(
+        $user->notify(
             new DownloadedBoard(
                 board: $this->board,
                 filePath: $this->filePath
             )
         );
-
     }
 
     protected function getFile(string $format): void
